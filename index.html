@@ -690,6 +690,12 @@ async function handleImageUpload(event) {
   document.getElementById('uploadError').style.display = 'none';
 
   try {
+    if (!getApiKey()) {
+      document.getElementById('step-parsing').style.display = 'none';
+      document.getElementById('step-upload').style.display = 'block';
+      showError('&#x26A0;&#xFE0F; Please enter your API key in the Team tab first.');
+      return;
+    }
     document.getElementById('parsingMsg').textContent = 'Reading image...';
     const base64 = await fileToBase64(file);
     const mediaType = file.type || 'image/jpeg';
@@ -976,7 +982,7 @@ function submitManual() {
 
 
 function getApiKey() {
-  return localStorage.getItem('rqp_apikey') || 'sk-ant-api' + '03-vSu8NHcbA-Tv8uHP56u8tPyI59mnnEaIgTXCTBVtOxPYSlHfcm39Nt33eUHloiBSiOsPSyWZX23N9ukfZivfLw-B6KvvQAA';
+  return localStorage.getItem('rqp_apikey') || '';
 }
 
 function saveApiKey() {
