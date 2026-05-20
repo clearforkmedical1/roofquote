@@ -5,447 +5,184 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>RoofQuote Pro</title>
+<title>RoofQuote Pro — Trophy Roofing</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  :root {
-    --bg: #060d18;
-    --surface: #0c1829;
-    --surface2: #0f1f35;
-    --border: #1a3450;
-    --accent: #2dd4bf;
-    --accent2: #0ea5e9;
-    --text: #e8f0f8;
-    --muted: #5a7a99;
-    --dim: #2a4a66;
-    --red: #f87171;
-    --green: #4ade80;
-    --yellow: #fbbf24;
-  }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, 'SF Pro Display', 'Segoe UI', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* HEADER */
-  .header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 14px 18px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .logo-icon {
-    width: 36px; height: 36px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border-radius: 9px;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    font-size: 18px;
-  }
-  .logo-text { flex: 1; }
-  .logo-text h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; }
-  .logo-text p { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-top: 1px; }
-  .header-total { text-align: right; }
-  .header-total .label { font-size: 10px; color: var(--muted); text-transform: uppercase; }
-  .header-total .amount { font-size: 20px; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
-
-  /* NAV TABS */
-  .nav-tabs {
-    display: flex;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .nav-tabs::-webkit-scrollbar { display: none; }
-  .nav-tab {
-    flex: 1;
-    min-width: 70px;
-    padding: 11px 6px;
-    background: none;
-    border: none;
-    border-bottom: 2px solid transparent;
-    color: var(--muted);
-    font-size: 12px;
-    font-family: inherit;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-  .nav-tab.active {
-    color: var(--accent);
-    border-bottom-color: var(--accent);
-    font-weight: 600;
-  }
-
-  /* MAIN CONTENT */
-  .main { max-width: 680px; margin: 0 auto; padding: 18px 14px 40px; }
-
-  /* UPLOAD AREA */
-  .upload-zone {
-    border: 2px dashed var(--border);
-    border-radius: 16px;
-    padding: 40px 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    background: var(--surface);
-    display: block;
-    width: 100%;
-  }
-  .upload-zone:active { background: var(--surface2); border-color: var(--accent); }
-  .upload-zone .icon { font-size: 52px; margin-bottom: 12px; }
-  .upload-zone h3 { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
-  .upload-zone p { font-size: 13px; color: var(--muted); }
-  .upload-zone input { display: none; }
-
-  .upload-tip {
-    margin-top: 14px;
-    padding: 12px 14px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    font-size: 12px;
-    color: var(--muted);
-    line-height: 1.5;
-  }
-  .upload-tip strong { color: #5a7a99; }
-
-  /* PARSING STATE */
-  .parsing-state { text-align: center; padding: 40px 20px; }
-  .spinner {
-    width: 48px; height: 48px;
-    border: 3px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto 18px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .parsing-state h3 { font-size: 16px; font-weight: 600; color: var(--accent); margin-bottom: 6px; }
-  .parsing-state p { font-size: 13px; color: var(--muted); }
-
-  /* ERROR BANNER */
-  .error-banner {
-    background: #1a0808;
-    border: 1px solid #5a1a1a;
-    border-radius: 10px;
-    padding: 12px 14px;
-    color: var(--red);
-    font-size: 13px;
-    margin-top: 14px;
-    line-height: 1.5;
-  }
-
-  /* STAT GRID */
-  .stat-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-  .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 10px 8px;
-    text-align: center;
-  }
-  .stat-card .s-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
-  .stat-card .s-value { font-size: 16px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
-
-  /* MEASUREMENT GRID */
-  .meas-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-  .meas-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 9px;
-    padding: 9px 12px;
-  }
-  .meas-card .m-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
-  .meas-card .m-value { font-size: 17px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
-  .meas-card .m-unit { font-size: 11px; color: var(--muted); margin-left: 2px; }
-
-  /* SECTION CARD */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-    margin-bottom: 14px;
-  }
-  .card-header {
-    padding: 10px 14px;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-    background: #070f1c;
-    border-bottom: 1px solid var(--border);
-  }
-
-  /* TABLE */
-  .quote-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .quote-table th {
-    padding: 8px 12px;
-    text-align: right;
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--muted);
-    background: #060d18;
-  }
-  .quote-table th:first-child { text-align: left; }
-  .quote-table td { padding: 7px 12px; text-align: right; border-bottom: 1px solid #0d1f30; }
-  .quote-table td:first-child { text-align: left; color: var(--text); }
-  .quote-table td.num { font-variant-numeric: tabular-nums; color: #94a3b8; }
-  .cat-row td { padding: 5px 12px 3px; font-size: 10px; color: var(--dim); background: #070f1c; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; border-bottom: 1px solid var(--border); }
-
-  /* TOTALS */
-  .totals { padding: 12px 14px; }
-  .total-row { display: flex; justify-content: space-between; padding: 3px 0; font-size: 12px; color: #7a9ab8; }
-  .total-row.big { font-size: 18px; font-weight: 800; color: var(--text); border-top: 1px solid var(--border); margin-top: 8px; padding-top: 10px; }
-  .total-row.big .t-amount { color: var(--accent); font-variant-numeric: tabular-nums; }
-  .total-row .t-amount { font-variant-numeric: tabular-nums; }
-  .per-sq { text-align: right; font-size: 11px; color: var(--muted); margin-top: 4px; }
-
-  /* PRICING INPUTS */
-  .pricing-section-label {
-    font-size: 10px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    padding: 10px 14px 4px;
-    background: #070f1c;
-    border-bottom: 1px solid var(--border);
-  }
-  .input-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 14px;
-    border-bottom: 1px solid #0d1f30;
-  }
-  .input-row label { font-size: 13px; color: #94a3b8; }
-  .input-row .input-wrap { display: flex; align-items: center; gap: 4px; }
-  .input-row .prefix { font-size: 12px; color: var(--muted); }
-  .input-row input[type=number] {
-    background: #060d18;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--text);
-    padding: 5px 8px;
-    width: 88px;
-    font-size: 13px;
-    text-align: right;
-    font-family: inherit;
-    -webkit-appearance: none;
-  }
-  .input-row input[type=number]:focus { outline: none; border-color: var(--accent); }
-
-  /* CUSTOMER INPUT */
-  .field-wrap { margin-bottom: 12px; }
-  .field-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; }
-  .field-input {
-    width: 100%;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    padding: 10px 12px;
-    font-size: 14px;
-    font-family: inherit;
-    -webkit-appearance: none;
-  }
-  .field-input:focus { outline: none; border-color: var(--accent); }
-
-  /* BUTTONS */
-  .btn-primary {
-    width: 100%;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: #060d18;
-    border: none;
-    border-radius: 10px;
-    padding: 14px;
-    font-size: 15px;
-    font-weight: 700;
-    font-family: inherit;
-    cursor: pointer;
-    margin-top: 6px;
-  }
-  .btn-secondary {
-    background: var(--surface2);
-    color: var(--muted);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 8px 14px;
-    font-size: 12px;
-    font-family: inherit;
-    cursor: pointer;
-  }
-
-  /* HISTORY */
-  .history-item {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    transition: border-color 0.15s;
-  }
-  .history-item:active { border-color: var(--accent); }
-  .history-item .h-addr { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
-  .history-item .h-meta { font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; }
-  .history-item .h-total { font-size: 16px; font-weight: 700; color: var(--accent); margin-top: 6px; font-variant-numeric: tabular-nums; }
-  .history-empty { text-align: center; padding: 48px 20px; color: var(--muted); font-size: 14px; }
-  .history-empty .e-icon { font-size: 40px; margin-bottom: 10px; }
-
-  /* TEAM / SETTINGS */
-  .settings-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 14px;
-    border-bottom: 1px solid #0d1f30;
-  }
-  .settings-row .s-info { }
-  .settings-row .s-label { font-size: 13px; }
-  .settings-row .s-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
-
-  /* BADGE */
-  .badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 20px;
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  .badge-green { background: #0a2a1a; color: var(--green); border: 1px solid #1a4a2a; }
-  .badge-yellow { background: #2a1a00; color: var(--yellow); border: 1px solid #4a3000; }
-
-  /* PAGE SECTIONS */
-  .page { display: none; }
-  .page.active { display: block; }
-
-  /* SECTION TITLE */
-  .section-title { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
-  .section-sub { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
-
-  /* SAFE AREA */
-  .safe-bottom { height: env(safe-area-inset-bottom, 16px); }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+:root {
+  --bg: #060d18; --surface: #0c1829; --surface2: #0f1f35; --border: #1a3450;
+  --accent: #2dd4bf; --accent2: #0ea5e9; --text: #e8f0f8; --muted: #5a7a99;
+  --dim: #2a4a66; --red: #f87171; --green: #4ade80; --yellow: #fbbf24;
+  --orange: #fb923c;
+}
+body { background: var(--bg); color: var(--text); font-family: -apple-system, 'SF Pro Display', 'Segoe UI', sans-serif; min-height: 100vh; overflow-x: hidden; }
+.header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 18px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 100; }
+.logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 18px; }
+.logo-text { flex: 1; }
+.logo-text h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; }
+.logo-text p { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-top: 1px; }
+.header-total { text-align: right; }
+.header-total .label { font-size: 10px; color: var(--muted); text-transform: uppercase; }
+.header-total .amount { font-size: 20px; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; }
+.nav-tabs { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
+.nav-tabs::-webkit-scrollbar { display: none; }
+.nav-tab { flex: 1; min-width: 70px; padding: 11px 6px; background: none; border: none; border-bottom: 2px solid transparent; color: var(--muted); font-size: 12px; font-family: inherit; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+.main { max-width: 680px; margin: 0 auto; padding: 18px 14px 40px; }
+.upload-zone { border: 2px dashed var(--border); border-radius: 16px; padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--surface); display: block; width: 100%; }
+.upload-zone:active { background: var(--surface2); border-color: var(--accent); }
+.upload-zone .icon { font-size: 52px; margin-bottom: 12px; }
+.upload-zone h3 { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+.upload-zone p { font-size: 13px; color: var(--muted); }
+.upload-zone input { display: none; }
+.upload-tip { margin-top: 14px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; font-size: 12px; color: var(--muted); line-height: 1.5; }
+.parsing-state { text-align: center; padding: 40px 20px; }
+.spinner { width: 48px; height: 48px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 18px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.parsing-state h3 { font-size: 16px; font-weight: 600; color: var(--accent); margin-bottom: 6px; }
+.parsing-state p { font-size: 13px; color: var(--muted); }
+.error-banner { background: #1a0808; border: 1px solid #5a1a1a; border-radius: 10px; padding: 12px 14px; color: var(--red); font-size: 13px; margin-top: 14px; line-height: 1.5; }
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 8px; text-align: center; }
+.stat-card .s-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+.stat-card .s-value { font-size: 16px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+.meas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; margin-bottom: 16px; }
+.meas-card { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 9px 12px; }
+.meas-card .m-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
+.meas-card .m-value { font-size: 17px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+.meas-card .m-unit { font-size: 11px; color: var(--muted); margin-left: 2px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 14px; }
+.card-header { padding: 10px 14px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); background: #070f1c; border-bottom: 1px solid var(--border); }
+.input-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 14px; border-bottom: 1px solid #0d1f30; }
+.input-row label { font-size: 13px; color: #94a3b8; }
+.input-row .input-wrap { display: flex; align-items: center; gap: 4px; }
+.input-row .prefix { font-size: 12px; color: var(--muted); }
+.input-row input[type=number] { background: #060d18; border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 5px 8px; width: 88px; font-size: 13px; text-align: right; font-family: inherit; -webkit-appearance: none; }
+.input-row input[type=number]:focus { outline: none; border-color: var(--accent); }
+.field-wrap { margin-bottom: 12px; }
+.field-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; }
+.field-input { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 10px 12px; font-size: 14px; font-family: inherit; -webkit-appearance: none; }
+.field-input:focus { outline: none; border-color: var(--accent); }
+.btn-primary { width: 100%; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #060d18; border: none; border-radius: 10px; padding: 14px; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; margin-top: 6px; }
+.btn-secondary { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; font-size: 12px; font-family: inherit; cursor: pointer; }
+.btn-action { flex: 1; padding: 12px 8px; border: none; border-radius: 10px; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.tier-btn { flex: 1; padding: 10px 6px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 12px; font-family: inherit; cursor: pointer; text-align: center; transition: all 0.15s; }
+.tier-btn.active { background: linear-gradient(135deg, rgba(45,212,191,0.15), rgba(14,165,233,0.15)); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.toggle-btn { padding: 8px 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 12px; font-family: inherit; cursor: pointer; transition: all 0.15s; }
+.toggle-btn.active { background: rgba(45,212,191,0.15); border-color: var(--accent); color: var(--accent); }
+.margin-bar-wrap { padding: 14px; }
+.margin-bar-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.margin-pct { font-size: 28px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.margin-pct.good { color: var(--green); }
+.margin-pct.warn { color: var(--yellow); }
+.margin-pct.danger { color: var(--red); }
+.margin-slider { width: 100%; -webkit-appearance: none; height: 6px; border-radius: 3px; outline: none; margin: 8px 0; }
+.margin-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+.commission-box { background: #070f1c; border-radius: 10px; padding: 12px 14px; margin-top: 10px; }
+.commission-box .c-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+.commission-box .c-amount { font-size: 22px; font-weight: 800; color: var(--yellow); font-variant-numeric: tabular-nums; }
+.commission-type { display: flex; gap: 8px; margin-top: 10px; }
+.history-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 10px; cursor: pointer; transition: border-color 0.15s; }
+.history-item:active { border-color: var(--accent); }
+.history-item .h-addr { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.history-item .h-meta { font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; }
+.history-item .h-total { font-size: 16px; font-weight: 700; color: var(--accent); margin-top: 6px; font-variant-numeric: tabular-nums; }
+.history-empty { text-align: center; padding: 48px 20px; color: var(--muted); font-size: 14px; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.badge-green { background: #0a2a1a; color: var(--green); border: 1px solid #1a4a2a; }
+.badge-yellow { background: #2a1a00; color: var(--yellow); border: 1px solid #4a3000; }
+.badge-red { background: #2a0a0a; color: var(--red); border: 1px solid #5a1a1a; }
+.page { display: none; }
+.page.active { display: block; }
+.section-title { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
+.section-sub { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+.safe-bottom { height: env(safe-area-inset-bottom, 16px); }
+.additional-item { display: flex; gap: 8px; align-items: center; padding: 6px 14px; border-bottom: 1px solid #0d1f30; }
+.additional-item input { background: #060d18; border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 5px 8px; font-size: 13px; font-family: inherit; }
+.additional-item .desc-input { flex: 1; }
+.additional-item .amt-input { width: 100px; text-align: right; }
+.additional-item .remove-btn { background: none; border: none; color: var(--red); font-size: 18px; cursor: pointer; padding: 0 4px; flex-shrink: 0; }
+.warning-banner { background: #1a1000; border: 1px solid #5a3a00; border-radius: 10px; padding: 10px 14px; color: var(--yellow); font-size: 12px; margin-top: 8px; }
+.danger-banner { background: #1a0808; border: 1px solid #5a1a1a; border-radius: 10px; padding: 10px 14px; color: var(--red); font-size: 12px; margin-top: 8px; }
+/* PRINT STYLES */
+@media print {
+  body { background: white; color: black; font-family: 'Helvetica Neue', Arial, sans-serif; }
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+  #printQuote { display: block !important; }
+}
+#printQuote { display: none; }
+.print-only { display: none; }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-
-<div id="apiKeyScreen" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:var(--bg); z-index:999; padding:40px 20px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-  <div style="max-width:420px; width:100%">
-    <div style="font-size:40px; text-align:center; margin-bottom:16px">&#x1F511;</div>
-    <h2 style="font-size:22px; font-weight:800; text-align:center; margin-bottom:8px">Enter Your API Key</h2>
-    <p style="color:var(--muted); font-size:13px; text-align:center; margin-bottom:24px; line-height:1.5">Your Anthropic API key is needed to read GAF screenshots with AI. It's saved only on this device.</p>
-    <div class="field-wrap">
-      <div class="field-label">Anthropic API Key</div>
-      <input class="field-input" id="apiKeyInput" type="password" placeholder="sk-ant-api03-..." style="font-family:monospace; font-size:12px;">
-    </div>
-    <button class="btn-primary" onclick="saveApiKey()" style="margin-top:8px">Save & Continue</button>
-    <p style="color:var(--muted); font-size:11px; text-align:center; margin-top:14px">Get a key at <strong>console.anthropic.com</strong> → API Keys</p>
-  </div>
-</div>
-
-<div class="header" id="mainApp" style="display:none">
+<div class="header" id="mainApp">
   <div class="logo-icon">&#x1F3E0;</div>
   <div class="logo-text">
     <h1>RoofQuote Pro</h1>
     <p>Trophy Roofing & Construction</p>
   </div>
   <div class="header-total" id="headerTotal" style="display:none">
-    <div class="label">Estimate</div>
+    <div class="label">Contract</div>
     <div class="amount" id="headerTotalAmt">$0</div>
   </div>
 </div>
 
-<!-- NAV TABS -->
-<div class="nav-tabs" id="navTabs" style="display:none">
-  <button class="nav-tab active" onclick="showTab('new')">+ New Quote</button>
-  <button class="nav-tab" onclick="showTab('history')">&#x1F4CB; History</button>
-  <button class="nav-tab" onclick="showTab('pricing')">&#x2699;&#xFE0F; Pricing</button>
-  <button class="nav-tab" onclick="showTab('settings')">&#x1F465; Team</button>
+<div class="nav-tabs" id="navTabs">
+  <button class="nav-tab active" onclick="showTab('new',this)">&#xFF0B; New</button>
+  <button class="nav-tab" onclick="showTab('history',this)">&#x1F4CB; History</button>
+  <button class="nav-tab" onclick="showTab('costs',this)">&#x1F4B0; Costs</button>
+  <button class="nav-tab" onclick="showTab('settings',this)">&#x2699;&#xFE0F; Team</button>
 </div>
 
-<!-- MAIN -->
-<div class="main" id="mainContent" style="display:none">
+<div class="main">
 
-  <!-- ===== NEW QUOTE PAGE ===== -->
+  <!-- ===== NEW QUOTE ===== -->
   <div class="page active" id="page-new">
 
     <!-- STEP 1: Upload -->
     <div id="step-upload">
       <div class="section-title">New Estimate</div>
-      <div class="section-sub">Upload a GAF Quick Measure recap screenshot to begin</div>
-
+      <div class="section-sub">Upload a GAF Quick Measure recap screenshot</div>
       <label class="upload-zone" id="uploadZone">
         <div class="icon">&#x1F4F8;</div>
         <h3>Upload Recap Screenshot</h3>
-        <p>Tap to choose photo from camera roll</p>
+        <p>Tap to choose from camera roll</p>
         <input type="file" accept="image/*" id="imageInput" onchange="handleImageUpload(event)">
       </label>
-
-      <button onclick="document.getElementById('manualEntry').style.display='block'; document.getElementById('uploadError').style.display='none';" 
-        style="width:100%; margin-top:12px; background:var(--surface2); color:var(--muted); border:1px solid var(--border); border-radius:10px; padding:13px; font-size:14px; font-family:inherit; cursor:pointer;">
+      <button onclick="document.getElementById('manualEntry').style.display='block'; this.style.display='none';"
+        style="width:100%; margin-top:12px; background:var(--surface2); color:var(--muted); border:1px solid var(--border); border-radius:10px; padding:13px; font-size:14px; font-family:inherit; cursor:pointer;" id="manualBtn">
         &#x270F;&#xFE0F; Enter Measurements Manually
       </button>
-
-      <div class="upload-tip">
-        &#x1F4A1; <strong>How to get the recap page:</strong> Open your GAF Quick Measure report PDF → go to the Summary/Recap page → take a screenshot → upload it here.
-      </div>
-
+      <div class="upload-tip">&#x1F4A1; <strong>Tip:</strong> Open GAF Quick Measure &#x2192; Summary page &#x2192; screenshot &#x2192; upload here.</div>
       <div class="error-banner" id="uploadError" style="display:none"></div>
-  <div id="manualEntry" style="display:none; margin-top:16px">
-    <div class="card">
-      <div class="card-header">Manual Entry — Type measurements from GAF report</div>
-      <div style="padding:14px; display:grid; grid-template-columns:1fr 1fr; gap:10px">
-        <div class="field-wrap"><div class="field-label">Total Squares</div><input class="field-input" id="m_totalSq" type="number" placeholder="66"></div>
-        <div class="field-wrap"><div class="field-label">Squares w/ Waste</div><input class="field-input" id="m_wasteSq" type="number" placeholder="78"></div>
-        <div class="field-wrap"><div class="field-label">Waste %</div><input class="field-input" id="m_wastePct" type="number" placeholder="18"></div>
-        <div class="field-wrap"><div class="field-label">Pitch</div><input class="field-input" id="m_pitch" placeholder="12/12"></div>
-        <div class="field-wrap"><div class="field-label">Facets</div><input class="field-input" id="m_facets" type="number" placeholder="29"></div>
-        <div class="field-wrap"><div class="field-label">Ridges (LF)</div><input class="field-input" id="m_ridges" type="number" placeholder="105"></div>
-        <div class="field-wrap"><div class="field-label">Hips (LF)</div><input class="field-input" id="m_hips" type="number" placeholder="216"></div>
-        <div class="field-wrap"><div class="field-label">Valleys (LF)</div><input class="field-input" id="m_valleys" type="number" placeholder="209"></div>
-        <div class="field-wrap"><div class="field-label">Rakes (LF)</div><input class="field-input" id="m_rakes" type="number" placeholder="189"></div>
-        <div class="field-wrap"><div class="field-label">Eaves (LF)</div><input class="field-input" id="m_eaves" type="number" placeholder="274"></div>
-        <div class="field-wrap"><div class="field-label">Flashing (LF)</div><input class="field-input" id="m_flash" type="number" placeholder="59"></div>
-        <div class="field-wrap"><div class="field-label">Step Flashing (LF)</div><input class="field-input" id="m_step" type="number" placeholder="44"></div>
-        <div class="field-wrap"><div class="field-label">Drip Edge (LF)</div><input class="field-input" id="m_drip" type="number" placeholder="463"></div>
-        <div class="field-wrap"><div class="field-label">Ridge Cap (LF)</div><input class="field-input" id="m_ridgecapLF" type="number" placeholder="322"></div>
-        <div class="field-wrap"><div class="field-label">Starter (LF)</div><input class="field-input" id="m_starter" type="number" placeholder="463"></div>
-        <div class="field-wrap"><div class="field-label">Leak Barrier (LF)</div><input class="field-input" id="m_leak" type="number" placeholder="1043"></div>
-        <div class="field-wrap" style="grid-column:1/-1"><div class="field-label">Address</div><input class="field-input" id="m_address" placeholder="123 Main St, City, TX"></div>
+
+      <!-- Manual Entry -->
+      <div id="manualEntry" style="display:none; margin-top:16px">
+        <div class="card">
+          <div class="card-header">Manual Measurements</div>
+          <div style="padding:14px; display:grid; grid-template-columns:1fr 1fr; gap:10px">
+            <div class="field-wrap"><div class="field-label">Total Squares</div><input class="field-input" id="m_totalSq" type="number" placeholder="66"></div>
+            <div class="field-wrap"><div class="field-label">Squares w/ Waste</div><input class="field-input" id="m_wasteSq" type="number" placeholder="78"></div>
+            <div class="field-wrap"><div class="field-label">Waste %</div><input class="field-input" id="m_wastePct" type="number" placeholder="18"></div>
+            <div class="field-wrap"><div class="field-label">Pitch</div><input class="field-input" id="m_pitch" placeholder="12/12"></div>
+            <div class="field-wrap"><div class="field-label">Facets</div><input class="field-input" id="m_facets" type="number" placeholder="29"></div>
+            <div class="field-wrap"><div class="field-label">Ridges (LF)</div><input class="field-input" id="m_ridges" type="number" placeholder="105"></div>
+            <div class="field-wrap"><div class="field-label">Hips (LF)</div><input class="field-input" id="m_hips" type="number" placeholder="216"></div>
+            <div class="field-wrap"><div class="field-label">Valleys (LF)</div><input class="field-input" id="m_valleys" type="number" placeholder="209"></div>
+            <div class="field-wrap"><div class="field-label">Rakes (LF)</div><input class="field-input" id="m_rakes" type="number" placeholder="189"></div>
+            <div class="field-wrap"><div class="field-label">Eaves (LF)</div><input class="field-input" id="m_eaves" type="number" placeholder="274"></div>
+            <div class="field-wrap"><div class="field-label">Flashing (LF)</div><input class="field-input" id="m_flash" type="number" placeholder="59"></div>
+            <div class="field-wrap"><div class="field-label">Step Flashing (LF)</div><input class="field-input" id="m_step" type="number" placeholder="44"></div>
+            <div class="field-wrap"><div class="field-label">Drip Edge (LF)</div><input class="field-input" id="m_drip" type="number" placeholder="463"></div>
+            <div class="field-wrap"><div class="field-label">Ridge Cap (LF)</div><input class="field-input" id="m_ridgecapLF" type="number" placeholder="322"></div>
+            <div class="field-wrap"><div class="field-label">Starter (LF)</div><input class="field-input" id="m_starter" type="number" placeholder="463"></div>
+            <div class="field-wrap"><div class="field-label">Leak Barrier (LF)</div><input class="field-input" id="m_leak" type="number" placeholder="1043"></div>
+            <div class="field-wrap" style="grid-column:1/-1"><div class="field-label">Address</div><input class="field-input" id="m_address" placeholder="123 Main St, City, TX"></div>
+          </div>
+          <div style="padding:0 14px 14px"><button class="btn-primary" onclick="submitManual()">Generate Quote &#x2192;</button></div>
+        </div>
       </div>
-      <div style="padding:0 14px 14px">
-        <button class="btn-primary" onclick="submitManual()">Generate Quote from Manual Entry</button>
-      </div>
-    </div>
-  </div>
     </div>
 
     <!-- STEP 2: Parsing -->
@@ -457,221 +194,511 @@
       </div>
     </div>
 
-    <!-- STEP 3: Review & Quote -->
+    <!-- STEP 3: Quote -->
     <div id="step-quote" style="display:none">
-
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px">
         <div class="section-title">Estimate</div>
-        <button class="btn-secondary" onclick="resetToUpload()">← New</button>
+        <button class="btn-secondary" onclick="resetToUpload()">&#x2190; New</button>
       </div>
 
-      <!-- Stats -->
+      <!-- Roof stats -->
       <div class="stat-grid">
-        <div class="stat-card"><div class="s-label">Squares</div><div class="s-value" id="statSq">—</div></div>
-        <div class="stat-card"><div class="s-label">Waste</div><div class="s-value" id="statWaste">—</div></div>
-        <div class="stat-card"><div class="s-label">Pitch</div><div class="s-value" id="statPitch">—</div></div>
-        <div class="stat-card"><div class="s-label">Facets</div><div class="s-value" id="statFacets">—</div></div>
+        <div class="stat-card"><div class="s-label">Actual Sq</div><div class="s-value" id="statSq">--</div></div>
+        <div class="stat-card"><div class="s-label">W/ Waste</div><div class="s-value" id="statWaste">--</div></div>
+        <div class="stat-card"><div class="s-label">Pitch</div><div class="s-value" id="statPitch">--</div></div>
+        <div class="stat-card"><div class="s-label">Facets</div><div class="s-value" id="statFacets">--</div></div>
       </div>
 
-      <!-- Customer fields -->
+      <!-- Customer info -->
       <div class="card" style="padding:14px; margin-bottom:14px">
-        <div class="field-wrap">
-          <div class="field-label">Customer / Job Name</div>
-          <input class="field-input" id="customerName" placeholder="e.g. John Smith" oninput="recalc()">
+        <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:10px">Customer Info</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
+          <div class="field-wrap"><div class="field-label">Customer Name</div><input class="field-input" id="customerName" placeholder="John Smith" oninput="recalc()"></div>
+          <div class="field-wrap"><div class="field-label">Phone</div><input class="field-input" id="customerPhone" placeholder="(817) 555-0000" oninput="recalc()"></div>
+          <div class="field-wrap" style="grid-column:1/-1"><div class="field-label">Address</div><input class="field-input" id="jobAddress" placeholder="123 Main St" oninput="recalc()"></div>
+          <div class="field-wrap" style="grid-column:1/-1"><div class="field-label">Email</div><input class="field-input" id="customerEmail" placeholder="customer@email.com" oninput="recalc()"></div>
         </div>
-        <div class="field-wrap" style="margin-bottom:0">
-          <div class="field-label">Address</div>
-          <input class="field-input" id="jobAddress" placeholder="123 Main St" oninput="recalc()">
+      </div>
+
+      <!-- Shingle tier -->
+      <div class="card" style="padding:14px; margin-bottom:14px">
+        <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:10px">Shingle Tier</div>
+        <div style="display:flex; gap:8px">
+          <button class="tier-btn active" id="tier-good" onclick="setTier('good')">&#x2B50; Good<br><span style="font-size:10px; color:var(--muted)">30yr Laminate</span></button>
+          <button class="tier-btn" id="tier-better" onclick="setTier('better')">&#x2B50;&#x2B50; Better<br><span style="font-size:10px; color:var(--muted)">Atlas Pinnacle</span></button>
+          <button class="tier-btn" id="tier-best" onclick="setTier('best')">&#x2B50;&#x2B50;&#x2B50; Best<br><span style="font-size:10px; color:var(--muted)">Class 4</span></button>
+        </div>
+        <div id="bestBrandWrap" style="display:none; margin-top:10px">
+          <div class="field-label">Class 4 Brand</div>
+          <input class="field-input" id="bestBrand" placeholder="e.g. Malarkey Vista AR, Owens Corning Duration..." oninput="recalc()" style="margin-top:4px">
+        </div>
+      </div>
+
+      <!-- Job options -->
+      <div class="card" style="padding:14px; margin-bottom:14px">
+        <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:10px">Job Options</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px">
+          <button class="toggle-btn" id="toggle-twostory" onclick="toggleOpt('twostory')">2-Story +$10/sq</button>
+          <button class="toggle-btn" id="toggle-extrafelt" onclick="toggleOpt('extrafelt')">Extra Felt Layer +$5/sq</button>
+          <button class="toggle-btn" id="toggle-zridge" onclick="toggleOpt('zridge')">Z-Ridge Upgrade</button>
+        </div>
+        <!-- Ridge cap type note -->
+        <div style="font-size:11px; color:var(--muted)" id="ridgeNote">Ridge: Standard ($40/bundle)</div>
+      </div>
+
+      <!-- Additional items -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center">
+          <span>Additional Items</span>
+          <button onclick="addAdditionalItem()" style="background:none; border:none; color:var(--accent); font-size:18px; cursor:pointer; padding:0">+</button>
+        </div>
+        <div id="additionalItems"></div>
+        <div style="padding:8px 14px; font-size:11px; color:var(--muted)">Tap + to add permits, OSB, gutters, skylights, etc.</div>
+      </div>
+
+      <!-- INTERNAL MARGIN SECTION -->
+      <div class="card" style="margin-bottom:14px; border-color: #2a4a2a">
+        <div class="card-header" style="background:#060f06; color:#4ade80">&#x1F512; INTERNAL — Margin & Commission</div>
+        <div class="margin-bar-wrap">
+          <div class="margin-bar-label">
+            <div>
+              <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em">Gross Margin</div>
+              <div class="margin-pct good" id="marginPct">0%</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:11px; color:var(--muted)">Hard Cost</div>
+              <div style="font-size:16px; font-weight:700; color:var(--red)" id="hardCostDisplay">$0</div>
+              <div style="font-size:11px; color:var(--muted); margin-top:2px">Gross Profit</div>
+              <div style="font-size:16px; font-weight:700; color:var(--green)" id="grossProfitDisplay">$0</div>
+            </div>
+          </div>
+          <input type="range" class="margin-slider" id="marginSlider" min="0" max="70" value="35" oninput="onSliderChange(this.value)">
+          <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--muted)">
+            <span>0%</span><span style="color:var(--yellow)">28% min</span><span>70%</span>
+          </div>
+          <div id="marginWarning" style="display:none"></div>
+          <div class="commission-box">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start">
+              <div>
+                <div class="c-label">Rep Commission</div>
+                <div class="c-amount" id="commissionAmt">$0</div>
+              </div>
+              <div>
+                <div class="c-label">Contract Price</div>
+                <div style="font-size:20px; font-weight:800; color:var(--accent); font-variant-numeric:tabular-nums" id="contractPrice">$0</div>
+              </div>
+            </div>
+            <div class="commission-type">
+              <button class="toggle-btn active" id="comm-company" onclick="setCommType('company')">Company Lead (8%)</button>
+              <button class="toggle-btn" id="comm-self" onclick="setCommType('self')">Self Generated (10%)</button>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- Measurements detail -->
       <div class="card" style="margin-bottom:14px">
-        <div class="card-header">Measurements from GAF Report</div>
+        <div class="card-header">GAF Measurements</div>
         <div class="meas-grid" style="padding:12px" id="measGrid"></div>
       </div>
 
-      <!-- Quote table -->
-      <div class="card">
-        <div class="card-header">Line Items</div>
-        <table class="quote-table">
-          <thead>
-            <tr><th>Item</th><th>Qty</th><th>Rate</th><th>Total</th></tr>
-          </thead>
-          <tbody id="quoteBody"></tbody>
-        </table>
-        <div class="totals" id="quoteTotals"></div>
+      <!-- Pitch breakdown -->
+      <div class="card" id="pitchBreakdownCard" style="display:none; margin-bottom:14px">
+        <div class="card-header">Pitch Breakdown & Labor Rates</div>
+        <div id="pitchBreakdownDisplay"></div>
       </div>
 
-      <!-- Save button -->
-      <button class="btn-primary" onclick="saveQuote()">&#x1F4BE; Save Quote to History</button>
-      <div style="height:10px"></div>
+      <!-- Action buttons -->
+      <div style="display:flex; gap:10px; margin-bottom:14px">
+        <button class="btn-action" onclick="printQuote()" style="background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#060d18">&#x1F5A8; Print Quote</button>
+        <button class="btn-action" onclick="shareQuote()" style="background:var(--surface2); color:var(--text); border:1px solid var(--border)">&#x1F4E4; Share</button>
+      </div>
+      <button class="btn-primary" onclick="saveQuote()" style="margin-bottom:6px">&#x1F4BE; Save to History</button>
     </div>
   </div>
 
-  <!-- ===== HISTORY PAGE ===== -->
+  <!-- ===== HISTORY ===== -->
   <div class="page" id="page-history">
     <div class="section-title">Quote History</div>
     <div class="section-sub">All saved estimates</div>
     <div id="historyList"></div>
   </div>
 
-  <!-- ===== PRICING PAGE ===== -->
-  <div class="page" id="page-pricing">
-    <div class="section-title">Default Pricing</div>
-    <div class="section-sub">Set your team's default rates. These apply to every new quote.</div>
-
+  <!-- ===== COSTS ===== -->
+  <div class="page" id="page-costs">
+    <div class="section-title">Hard Costs</div>
+    <div class="section-sub">Your actual costs — never shown to customers</div>
     <div class="card">
-      <div class="pricing-section-label">Materials — Per Square</div>
-      <div class="input-row"><label>Shingles</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="p_shingles" value="120" step="1" oninput="savePricing(); recalc()"></div></div>
-      <div class="input-row"><label>Synthetic Underlayment</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="p_underlay" value="18" step="1" oninput="savePricing(); recalc()"></div></div>
-      <div class="input-row"><label>Nails & Fasteners</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="p_nails" value="8" step="1" oninput="savePricing(); recalc()"></div></div>
-      <div class="pricing-section-label">Materials — Per Linear Foot</div>
-      <div class="input-row"><label>Leak Barrier (Ice & Water)</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="p_leakbarrier" value="1.20" step="0.10" oninput="savePricing(); recalc()"></div></div>
-      <div class="input-row"><label>Ridge Cap</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="p_ridgecap" value="3.50" step="0.10" oninput="savePricing(); recalc()"></div></div>
-      <div class="input-row"><label>Starter Strip</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="p_starter" value="1.20" step="0.10" oninput="savePricing(); recalc()"></div></div>
-      <div class="input-row"><label>Drip Edge</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="p_drip" value="1.80" step="0.10" oninput="savePricing(); recalc()"></div></div>
-      <div class="input-row"><label>Flashing</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="p_flash" value="4.50" step="0.10" oninput="savePricing(); recalc()"></div></div>
-      <div class="input-row"><label>Step Flashing</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="p_stepflash" value="4.50" step="0.10" oninput="savePricing(); recalc()"></div></div>
-      <div class="pricing-section-label">Labor — Per Square</div>
-      <div class="input-row"><label>Installation Labor</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="p_labor" value="95" step="1" oninput="savePricing(); recalc()"></div></div>
-      <div class="input-row"><label>Tear-Off & Disposal</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="p_tearoff" value="35" step="1" oninput="savePricing(); recalc()"></div></div>
-      <div class="pricing-section-label">Fixed Fees</div>
-      <div class="input-row"><label>Dumpster</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="p_dumpster" value="350" step="10" oninput="savePricing(); recalc()"></div></div>
-      <div class="input-row"><label>Permit</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="p_permit" value="250" step="10" oninput="savePricing(); recalc()"></div></div>
-      <div class="pricing-section-label">Markup</div>
-      <div class="input-row"><label>Markup %</label><div class="input-wrap"><span class="prefix">%</span><input type="number" id="p_markup" value="20" step="0.5" oninput="savePricing(); recalc()"></div></div>
+      <div class="card-header">Shingles (per square = 3 bundles)</div>
+      <div class="input-row"><label>Good (30yr Laminate)</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="c_good" value="106" step="1" oninput="saveCosts()"></div></div>
+      <div class="input-row"><label>Better (Atlas Pinnacle)</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="c_better" value="112" step="1" oninput="saveCosts()"></div></div>
+      <div class="input-row"><label>Best (Class 4)</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="c_best" value="140" step="1" oninput="saveCosts()"></div></div>
+      <div class="card-header" style="border-top:1px solid var(--border)">Accessories</div>
+      <div class="input-row"><label>Underlayment (per roll/9sq)</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="c_underlay" value="69.12" step="0.01" oninput="saveCosts()"></div></div>
+      <div class="input-row"><label>Ice & Water (per roll/40LF valley)</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="c_icewater" value="84.00" step="0.01" oninput="saveCosts()"></div></div>
+      <div class="input-row"><label>Starter (per bundle/100LF)</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="c_starter" value="51.54" step="0.01" oninput="saveCosts()"></div></div>
+      <div class="input-row"><label>Drip Edge (per pc/8.5LF)</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="c_drip" value="7.82" step="0.01" oninput="saveCosts()"></div></div>
+      <div class="input-row"><label>Standard Ridge Cap (per bundle/27LF)</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="c_ridge_std" value="40.00" step="0.01" oninput="saveCosts()"></div></div>
+      <div class="input-row"><label>Z-Ridge (per bundle/27LF)</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="c_ridge_z" value="67.20" step="0.01" oninput="saveCosts()"></div></div>
+      <div class="input-row"><label>Coil Nails (per carton/15sq actual)</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="c_nails" value="39.20" step="0.01" oninput="saveCosts()"></div></div>
+      <div class="input-row"><label>Cap Nails (per carton/30sq actual)</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="c_capnails" value="19.00" step="0.01" oninput="saveCosts()"></div></div>
+      <div class="card-header" style="border-top:1px solid var(--border)">Labor (per square)</div>
+      <div class="input-row"><label>Base Labor (incl. tear-off)</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="c_labor" value="75" step="1" oninput="saveCosts()"></div></div>
+      <div class="input-row"><label>2-Story Upcharge</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="c_twostory" value="10" step="1" oninput="saveCosts()"></div></div>
+      <div class="input-row"><label>Extra Felt Layer</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="c_extrafelt" value="5" step="1" oninput="saveCosts()"></div></div>
+      <div class="card-header" style="border-top:1px solid var(--border)">Tax Rate</div>
+      <div class="input-row"><label>Supplier Tax Rate</label><div class="input-wrap"><span class="prefix">%</span><input type="number" id="c_tax" value="8.43" step="0.01" oninput="saveCosts()"></div></div>
     </div>
-
-    <div style="font-size:12px; color:var(--muted); text-align:center; margin-top:8px">
-      Pricing is saved locally on this device
-    </div>
+    <div style="font-size:12px; color:var(--muted); text-align:center; margin-top:8px">Tax is added to material hard costs internally — never shown to customers</div>
   </div>
 
-  <!-- ===== TEAM / SETTINGS PAGE ===== -->
+  <!-- ===== SETTINGS / TEAM ===== -->
   <div class="page" id="page-settings">
-    <div class="section-title">Team</div>
+    <div class="section-title">Team Settings</div>
     <div class="section-sub">Trophy Roofing & Construction</div>
-
     <div class="card" style="margin-bottom:14px">
       <div class="card-header">Company</div>
       <div style="padding:14px">
-        <div class="field-wrap">
-          <div class="field-label">Company Name</div>
-          <input class="field-input" id="companyName" value="Trophy Roofing & Construction" oninput="saveSettings()">
-        </div>
-        <div class="field-wrap" style="margin-bottom:0">
-          <div class="field-label">License / Contractor #</div>
-          <input class="field-input" id="licenseNo" placeholder="e.g. TX-12345" oninput="saveSettings()">
-        </div>
+        <div class="field-wrap"><div class="field-label">Company Name</div><input class="field-input" id="companyName" value="Trophy Roofing & Construction" oninput="saveSettings()"></div>
+        <div class="field-wrap" style="margin-bottom:0"><div class="field-label">License / Contractor #</div><input class="field-input" id="licenseNo" placeholder="e.g. TX-12345" oninput="saveSettings()"></div>
       </div>
     </div>
-
-    <div class="card" style="margin-bottom:14px">
-      <div class="card-header">Quote Defaults</div>
-      <div style="padding:14px">
-        <div class="field-wrap">
-          <div class="field-label">Default Quote Notes</div>
-          <input class="field-input" id="defaultNotes" placeholder="e.g. Full tear-off, 30yr architectural shingles" oninput="saveSettings()">
-        </div>
-        <div class="field-wrap" style="margin-bottom:0">
-          <div class="field-label">Quote Validity (days)</div>
-          <input class="field-input" id="validDays" value="30" type="number" oninput="saveSettings()">
-        </div>
-      </div>
-    </div>
-
     <div class="card" style="margin-bottom:14px">
       <div class="card-header">API Key</div>
       <div style="padding:14px">
-        <div class="field-wrap">
-          <div class="field-label">Anthropic API Key</div>
-          <input class="field-input" id="apiKeyDisplay" type="password" placeholder="sk-ant-api03-..." style="font-family:monospace; font-size:12px;" oninput="localStorage.setItem('rqp_apikey', this.value)">
-        </div>
-        <p style="font-size:11px; color:var(--muted); margin-top:6px">Stored locally on this device only. Get keys at console.anthropic.com</p>
+        <div class="field-wrap"><div class="field-label">Anthropic API Key</div><input class="field-input" id="apiKeyDisplay" type="password" placeholder="sk-ant-api03-..." style="font-family:monospace; font-size:12px;" oninput="localStorage.setItem('rqp_apikey', this.value)"></div>
+        <p style="font-size:11px; color:var(--muted)">Stored only on this device. Get keys at console.anthropic.com</p>
       </div>
     </div>
-
     <div class="card">
       <div class="card-header">About</div>
-      <div class="settings-row">
-        <div class="s-info"><div class="s-label">Version</div><div class="s-desc">RoofQuote Pro v1.0</div></div>
-        <span class="badge badge-green">Local</span>
-      </div>
-      <div class="settings-row" style="border-bottom:none">
-        <div class="s-info"><div class="s-label">Data Storage</div><div class="s-desc">All data stays on this device</div></div>
-        <span class="badge badge-yellow">Private</span>
+      <div class="input-row" style="border-bottom:none">
+        <div><div style="font-size:13px">RoofQuote Pro v2.0</div><div style="font-size:11px; color:var(--muted)">Trophy Roofing & Construction</div></div>
+        <span class="badge badge-green">Private</span>
       </div>
     </div>
   </div>
 
 </div>
-<div class="safe-bottom" id="safeBottom" style="display:none"></div>
+<div class="safe-bottom"></div>
+
+<!-- PRINT TEMPLATE (hidden) -->
+<div id="printQuote">
+  <style>
+    #printQuote { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px; color: #1a1a1a; }
+    .pq-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid #1a3a6a; }
+    .pq-logo-area h1 { font-size: 28px; font-weight: 900; color: #1a3a6a; letter-spacing: -0.02em; }
+    .pq-logo-area p { font-size: 12px; color: #666; margin-top: 2px; }
+    .pq-contact { text-align: right; font-size: 12px; color: #444; line-height: 1.6; }
+    .pq-title { font-size: 22px; font-weight: 800; color: #1a3a6a; margin-bottom: 20px; }
+    .pq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .pq-info-box { background: #f8f9fa; border-radius: 8px; padding: 14px; }
+    .pq-info-box .label { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+    .pq-info-box .value { font-size: 14px; font-weight: 600; }
+    .pq-scope { background: #f0f4ff; border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .pq-scope h3 { font-size: 13px; font-weight: 700; color: #1a3a6a; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+    .pq-scope p { font-size: 13px; color: #333; line-height: 1.6; }
+    .pq-price-box { background: #1a3a6a; color: white; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 24px; }
+    .pq-price-box .plabel { font-size: 12px; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.07em; }
+    .pq-price-box .pamount { font-size: 48px; font-weight: 900; letter-spacing: -0.02em; margin: 4px 0; }
+    .pq-addl { margin-bottom: 24px; }
+    .pq-addl table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .pq-addl th { text-align: left; padding: 6px 10px; font-size: 10px; text-transform: uppercase; color: #888; border-bottom: 2px solid #eee; }
+    .pq-addl td { padding: 6px 10px; border-bottom: 1px solid #f0f0f0; }
+    .pq-addl td:last-child { text-align: right; font-weight: 600; }
+    .pq-footer { border-top: 1px solid #ddd; padding-top: 16px; font-size: 11px; color: #888; text-align: center; line-height: 1.6; }
+    .pq-signature { margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+    .pq-sig-line { border-top: 1px solid #333; padding-top: 8px; font-size: 11px; color: #666; }
+    .pq-valid { background: #fff8e1; border: 1px solid #ffc107; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #856404; margin-bottom: 20px; }
+  </style>
+  <div class="pq-header">
+    <div class="pq-logo-area">
+      <h1>TROPHY ROOFING</h1>
+      <p>& CONSTRUCTION</p>
+      <p style="margin-top:6px; font-size:11px; color:#888">11975 Cleveland Gibbs Rd. Suite 110<br>Roanoke, TX 76262</p>
+    </div>
+    <div class="pq-contact">
+      <strong style="font-size:14px; color:#1a3a6a">ROOFING ESTIMATE</strong><br>
+      <span id="pq-date"></span><br><br>
+      &#x260E; 682-438-2151<br>
+      &#x2709; info@trophyroofingdfw.com<br>
+      trophyroofingdfw.com
+    </div>
+  </div>
+  <div class="pq-title">Prepared For:</div>
+  <div class="pq-grid">
+    <div class="pq-info-box"><div class="label">Customer</div><div class="value" id="pq-customer">--</div></div>
+    <div class="pq-info-box"><div class="label">Property Address</div><div class="value" id="pq-address">--</div></div>
+    <div class="pq-info-box"><div class="label">Phone</div><div class="value" id="pq-phone">--</div></div>
+    <div class="pq-info-box"><div class="label">Email</div><div class="value" id="pq-email">--</div></div>
+  </div>
+  <div class="pq-valid">&#x23F0; This estimate is valid for 30 days from the date above.</div>
+  <div class="pq-scope">
+    <h3>Scope of Work</h3>
+    <p id="pq-scope">Complete roof replacement including full tear-off of existing shingles, installation of synthetic underlayment, ice and water shield in valleys, new drip edge, ridge cap, and starter strip. All debris hauled off. Landscaping and pool protection included.</p>
+  </div>
+  <div class="pq-price-box">
+    <div class="plabel">Total Contract Price</div>
+    <div class="pamount" id="pq-price">$0</div>
+    <div style="font-size:13px; opacity:0.8; margin-top:4px" id="pq-sqnote"></div>
+  </div>
+  <div class="pq-addl" id="pq-addl-wrap" style="display:none">
+    <table>
+      <thead><tr><th>Additional Item</th><th>Amount</th></tr></thead>
+      <tbody id="pq-addl-items"></tbody>
+    </table>
+  </div>
+  <div class="pq-signature">
+    <div><div class="pq-sig-line">Customer Signature & Date</div></div>
+    <div><div class="pq-sig-line">Trophy Roofing Representative</div></div>
+  </div>
+  <div class="pq-footer">
+    Trophy Roofing & Construction | 11975 Cleveland Gibbs Rd. Suite 110, Roanoke, TX 76262<br>
+    682-438-2151 | info@trophyroofingdfw.com | License #<span id="pq-license"></span><br>
+    All work performed to manufacturer specifications. Workmanship warranty provided upon completion.
+  </div>
+</div>
 
 <script>
 // ============================================================
 // STATE
 // ============================================================
 let currentMeasurements = null;
+let currentTier = 'good';
+let currentCommType = 'company';
+let jobOpts = { twostory: false, extrafelt: false, zridge: false };
+let additionalItems = [];
 let quoteHistory = JSON.parse(localStorage.getItem('rqp_history') || '[]');
+let currentContractPrice = 0;
 
 // ============================================================
 // NAVIGATION
 // ============================================================
-function showTab(tab) {
+function showTab(tab, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('page-' + tab).classList.add('active');
-  event.target.classList.add('active');
+  if (btn) btn.classList.add('active');
   if (tab === 'history') renderHistory();
   const hdr = document.getElementById('headerTotal');
   hdr.style.display = (tab === 'new' && currentMeasurements) ? 'block' : 'none';
 }
 
 // ============================================================
-// PRICING — load/save from localStorage
+// COSTS
 // ============================================================
-const PRICE_FIELDS = ['shingles','underlay','nails','leakbarrier','ridgecap','starter','drip','flash','stepflash','labor','tearoff','dumpster','permit','markup'];
-
-function loadPricing() {
-  const saved = JSON.parse(localStorage.getItem('rqp_pricing') || '{}');
-  PRICE_FIELDS.forEach(f => {
-    const el = document.getElementById('p_' + f);
+function getC(id) { return parseFloat(document.getElementById(id)?.value) || 0; }
+function saveCosts() {
+  const data = {};
+  ['good','better','best','underlay','icewater','starter','drip','ridge_std','ridge_z','nails','capnails','labor','steep','twostory','extrafelt','tax'].forEach(f => {
+    const el = document.getElementById('c_' + f);
+    if (el) data[f] = el.value;
+  });
+  localStorage.setItem('rqp_costs', JSON.stringify(data));
+  recalc();
+}
+function loadCosts() {
+  const saved = JSON.parse(localStorage.getItem('rqp_costs') || '{}');
+  ['good','better','best','underlay','icewater','starter','drip','ridge_std','ridge_z','nails','capnails','labor','steep','twostory','extrafelt','tax'].forEach(f => {
+    const el = document.getElementById('c_' + f);
     if (el && saved[f] !== undefined) el.value = saved[f];
   });
 }
 
-function savePricing() {
-  const data = {};
-  PRICE_FIELDS.forEach(f => {
-    const el = document.getElementById('p_' + f);
-    if (el) data[f] = parseFloat(el.value) || 0;
-  });
-  localStorage.setItem('rqp_pricing', JSON.stringify(data));
-}
+// ============================================================
+// HARD COST CALCULATION
+// ============================================================
+function calcHardCost(m) {
+  if (!m) return 0;
+  const taxRate = 1 + (getC('c_tax') / 100);
+  const actualSq = m.totalSquares || 0;
+  const wasteSq = m.totalWithWaste || actualSq;
+  const valleysLF = m.valleysLF || 0;
+  const dripLF = m.dripEdgeLF || ((m.rakesLF||0) + (m.eavesLF||0));
+  const ridgeCapLF = m.ridgeCapLF || ((m.ridgesLF||0) + (m.hipsLF||0));
+  const starterLF = m.starterLF || dripLF;
 
-function getP(field) {
-  return parseFloat(document.getElementById('p_' + field)?.value) || 0;
+  // Shingles — round up to nearest bundle, convert to squares
+  const shingleCostPerSq = currentTier === 'good' ? getC('c_good') : currentTier === 'better' ? getC('c_better') : getC('c_best');
+  const shingleBundles = Math.ceil(wasteSq * 3);
+  const shingleCost = (shingleBundles / 3) * shingleCostPerSq;
+
+  // Underlayment — round up rolls (9sq/roll)
+  const underlayRolls = Math.ceil(wasteSq / 9);
+  const underlayCost = underlayRolls * getC('c_underlay');
+
+  // Ice & water — valleys only, 1 roll per 40LF valley
+  const icewaterRolls = Math.ceil(valleysLF / 40);
+  const icewaterCost = icewaterRolls * getC('c_icewater');
+
+  // Starter — round up bundles (100LF/bundle)
+  const starterBundles = Math.ceil(starterLF / 100);
+  const starterCost = starterBundles * getC('c_starter');
+
+  // Drip edge — round up pieces (8.5LF/piece)
+  const dripPcs = Math.ceil(dripLF / 8.5);
+  const dripCost = dripPcs * getC('c_drip');
+
+  // Ridge cap — round up bundles (27LF/bundle)
+  const ridgeBundles = Math.ceil(ridgeCapLF / 27);
+  const ridgeCostPerBundle = jobOpts.zridge ? getC('c_ridge_z') : getC('c_ridge_std');
+  const ridgeCost = ridgeBundles * ridgeCostPerBundle;
+
+  // Coil nails — round up cartons (15sq actual)
+  const nailCartons = Math.ceil(actualSq / 15);
+  const nailCost = nailCartons * getC('c_nails');
+
+  // Cap nails — round up cartons (30sq actual)
+  const capNailCartons = Math.ceil(actualSq / 30);
+  const capNailCost = capNailCartons * getC('c_capnails');
+
+  const matCostPreTax = shingleCost + underlayCost + icewaterCost + starterCost + dripCost + ridgeCost + nailCost + capNailCost;
+  const matCostWithTax = matCostPreTax * taxRate;
+
+  // Labor — pitch by pitch
+  const pitchRates = {1:75,2:75,3:75,4:75,5:75,6:75,7:75,8:80,9:85,10:90,11:95,12:100,13:105,14:110,15:115,16:120};
+  let fieldLaborCost = 0;
+  const pb = m.pitchBreakdown;
+  const totalRoofSqFt = actualSq * 100;
+  if (pb && Object.values(pb).some(v => v > 0)) {
+    // Use pitch breakdown — apply waste proportionally
+    const wasteFactor = wasteSq / actualSq;
+    for (const [pitch, sqft] of Object.entries(pb)) {
+      if (!sqft) continue;
+      const pitchSq = (sqft / 100) * wasteFactor;
+      const rate = pitchRates[parseInt(pitch)] || 75;
+      fieldLaborCost += pitchSq * rate;
+    }
+  } else {
+    // Fallback: use predominant pitch or base rate
+    const pitch = parseInt((m.predominantPitch || '7').split('/')[0]) || 7;
+    const rate = pitchRates[pitch] || 75;
+    fieldLaborCost = wasteSq * rate;
+  }
+  // Ridge & starter labor at base rate
+  const ridgeCapLF2 = m.ridgeCapLF || ((m.ridgesLF||0) + (m.hipsLF||0));
+  const starterLF2 = m.starterLF || dripLF;
+  const ridgeBundles2 = Math.ceil(ridgeCapLF2 / 27);
+  const starterBundles2 = Math.ceil(starterLF2 / 100);
+  const ridgeStarterLaborSq = (ridgeBundles2 + starterBundles2) / 3;
+  const ridgeStarterLaborCost = ridgeStarterLaborSq * 75;
+  // Extra felt
+  const extrafeltCost = jobOpts.extrafelt ? wasteSq * getC('c_extrafelt') : 0;
+  // 2-story
+  const twostoryCost = jobOpts.twostory ? wasteSq * getC('c_twostory') : 0;
+  // Delivery (baked in, never shown)
+  const deliveryCost = 165;
+  const laborCost = fieldLaborCost + ridgeStarterLaborCost + extrafeltCost + twostoryCost + deliveryCost;
+
+  // Additional items hard cost = 0 (they're pass-through or markup items)
+  const addlTotal = additionalItems.reduce((s, i) => s + (parseFloat(i.amt) || 0), 0);
+
+  return matCostWithTax + laborCost;
 }
 
 // ============================================================
-// SETTINGS
+// RECALC
 // ============================================================
-function loadSettings() {
-  const s = JSON.parse(localStorage.getItem('rqp_settings') || '{}');
-  if (s.companyName) document.getElementById('companyName').value = s.companyName;
-  if (s.licenseNo) document.getElementById('licenseNo').value = s.licenseNo;
-  if (s.defaultNotes) document.getElementById('defaultNotes').value = s.defaultNotes;
-  if (s.validDays) document.getElementById('validDays').value = s.validDays;
+function recalc() {
+  if (!currentMeasurements) return;
+  const hardCost = calcHardCost(currentMeasurements);
+  const addlTotal = additionalItems.reduce((s, i) => s + (parseFloat(i.amt) || 0), 0);
+  const sliderVal = parseFloat(document.getElementById('marginSlider').value);
+  // Contract = hardCost / (1 - margin%) + addl items
+  const baseContract = hardCost / (1 - sliderVal / 100);
+  const contractPrice = baseContract + addlTotal;
+  currentContractPrice = contractPrice;
+
+  const grossProfit = contractPrice - hardCost - addlTotal;
+  const actualMargin = contractPrice > 0 ? ((grossProfit / contractPrice) * 100) : 0;
+
+  // Update margin display
+  const marginEl = document.getElementById('marginPct');
+  marginEl.textContent = actualMargin.toFixed(1) + '%';
+  marginEl.className = 'margin-pct ' + (actualMargin >= 28 ? 'good' : actualMargin >= 20 ? 'warn' : 'danger');
+
+  document.getElementById('hardCostDisplay').textContent = fmtC(hardCost + addlTotal);
+  document.getElementById('grossProfitDisplay').textContent = fmtC(grossProfit);
+
+  // Margin warning
+  const warnEl = document.getElementById('marginWarning');
+  if (actualMargin < 28) {
+    warnEl.style.display = 'block';
+    warnEl.className = actualMargin < 20 ? 'danger-banner' : 'warning-banner';
+    warnEl.textContent = actualMargin < 20
+      ? '&#x26A0; DANGER: Margin below 20% — this job may not cover overhead. Rep commission will be reduced.'
+      : '&#x26A0; WARNING: Below 28% minimum — overhead may not be covered. Rep commission may be affected.';
+  } else {
+    warnEl.style.display = 'none';
+  }
+
+  // Commission
+  const commRate = currentCommType === 'company' ? 0.08 : 0.10;
+  const commission = contractPrice * commRate;
+  document.getElementById('commissionAmt').textContent = fmtC(commission);
+  document.getElementById('contractPrice').textContent = fmtC(contractPrice);
+  document.getElementById('headerTotalAmt').textContent = fmtC(contractPrice);
 }
 
-function saveSettings() {
-  localStorage.setItem('rqp_settings', JSON.stringify({
-    companyName: document.getElementById('companyName').value,
-    licenseNo: document.getElementById('licenseNo').value,
-    defaultNotes: document.getElementById('defaultNotes').value,
-    validDays: document.getElementById('validDays').value,
-  }));
+function onSliderChange(val) {
+  recalc();
+}
+
+// ============================================================
+// TIER & OPTIONS
+// ============================================================
+function setTier(tier) {
+  currentTier = tier;
+  ['good','better','best'].forEach(t => document.getElementById('tier-' + t).classList.remove('active'));
+  document.getElementById('tier-' + tier).classList.add('active');
+  document.getElementById('bestBrandWrap').style.display = tier === 'best' ? 'block' : 'none';
+  recalc();
+}
+
+function toggleOpt(opt) {
+  jobOpts[opt] = !jobOpts[opt];
+  document.getElementById('toggle-' + opt).classList.toggle('active', jobOpts[opt]);
+  if (opt === 'zridge') {
+    document.getElementById('ridgeNote').textContent = jobOpts.zridge ? 'Ridge: Z-Ridge ($67.20/bundle)' : 'Ridge: Standard ($40/bundle)';
+  }
+  recalc();
+}
+
+function setCommType(type) {
+  currentCommType = type;
+  document.getElementById('comm-company').classList.toggle('active', type === 'company');
+  document.getElementById('comm-self').classList.toggle('active', type === 'self');
+  recalc();
+}
+
+// ============================================================
+// ADDITIONAL ITEMS
+// ============================================================
+function addAdditionalItem() {
+  const id = Date.now();
+  additionalItems.push({ id, desc: '', amt: 0 });
+  renderAdditionalItems();
+}
+function removeAdditionalItem(id) {
+  additionalItems = additionalItems.filter(i => i.id !== id);
+  renderAdditionalItems();
+  recalc();
+}
+function renderAdditionalItems() {
+  const el = document.getElementById('additionalItems');
+  el.innerHTML = additionalItems.map(item => `
+    <div class="additional-item">
+      <input class="desc-input field-input" placeholder="Description (e.g. Permit, OSB, Gutters)" value="${item.desc}"
+        oninput="updateAddlItem(${item.id}, 'desc', this.value)" style="flex:1; padding:6px 8px; font-size:13px">
+      <input class="amt-input field-input" type="number" placeholder="0.00" value="${item.amt || ''}"
+        oninput="updateAddlItem(${item.id}, 'amt', this.value)" style="width:100px; text-align:right; padding:6px 8px; font-size:13px">
+      <button class="remove-btn" onclick="removeAdditionalItem(${item.id})">&#x2715;</button>
+    </div>`).join('');
+}
+function updateAddlItem(id, field, val) {
+  const item = additionalItems.find(i => i.id === id);
+  if (item) { item[field] = field === 'amt' ? parseFloat(val) || 0 : val; }
+  recalc();
 }
 
 // ============================================================
@@ -680,279 +707,51 @@ function saveSettings() {
 async function handleImageUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
-  if (!file.type.startsWith('image/')) {
-    showError('Please select an image file (JPG or PNG screenshot).');
-    return;
-  }
-
+  if (!file.type.startsWith('image/')) { showError('Please select an image file.'); return; }
+  const apiKey = getApiKey();
+  if (!apiKey) { showError('Please enter your API key in the Team tab first.'); return; }
   document.getElementById('step-upload').style.display = 'none';
   document.getElementById('step-parsing').style.display = 'block';
   document.getElementById('uploadError').style.display = 'none';
-
   try {
-    if (!getApiKey()) {
-      document.getElementById('step-parsing').style.display = 'none';
-      document.getElementById('step-upload').style.display = 'block';
-      showError('&#x26A0;&#xFE0F; Please enter your API key in the Team tab first.');
-      return;
-    }
     document.getElementById('parsingMsg').textContent = 'Reading image...';
     const base64 = await fileToBase64(file);
-    const mediaType = file.type || 'image/jpeg';
-
     document.getElementById('parsingMsg').textContent = 'Extracting measurements...';
-
-    const prompt = `You are a roofing estimator. Extract all measurements from this GAF Quick Measure summary/recap screenshot.
-
-Return ONLY a valid JSON object with no markdown formatting, no code blocks, no explanation:
-{"address":"string or null","totalSquares":number or null,"predominantPitch":"string or null","ridgesLF":number or null,"hipsLF":number or null,"valleysLF":number or null,"rakesLF":number or null,"eavesLF":number or null,"flashLF":number or null,"stepFlashLF":number or null,"dripEdgeLF":number or null,"ridgeCapLF":number or null,"starterLF":number or null,"leakBarrierLF":number or null,"facets":number or null,"suggestedWastePct":number or null,"totalWithWaste":number or null}
-
-Extract every number you can find. For waste, use the "Suggested" highlighted value if shown.`;
-
+    const prompt = `You are a roofing estimator. Extract all measurements from this GAF Quick Measure summary screenshot.
+Return ONLY a valid JSON object, no markdown:
+{"address":"string or null","totalSquares":number or null,"predominantPitch":"string or null","ridgesLF":number or null,"hipsLF":number or null,"valleysLF":number or null,"rakesLF":number or null,"eavesLF":number or null,"flashLF":number or null,"stepFlashLF":number or null,"dripEdgeLF":number or null,"ridgeCapLF":number or null,"starterLF":number or null,"leakBarrierLF":number or null,"facets":number or null,"suggestedWastePct":number or null,"totalWithWaste":number or null,"pitchBreakdown":{"4":sqft_or_null,"6":sqft_or_null,"8":sqft_or_null,"9":sqft_or_null,"10":sqft_or_null,"11":sqft_or_null,"12":sqft_or_null,"13":sqft_or_null,"14":sqft_or_null,"15":sqft_or_null,"16":sqft_or_null}}
+For pitchBreakdown, extract the area in sq ft for each pitch shown in the table at the top of the report. Use null for pitches not present.`;
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': getApiKey(), 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: [
-          { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
-          { type: 'text', text: prompt }
-        ]}]
-      })
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 1000, messages: [{ role: 'user', content: [{ type: 'image', source: { type: 'base64', media_type: file.type || 'image/jpeg', data: base64 } }, { type: 'text', text: prompt }] }] })
     });
-
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error('API error ' + response.status + ': ' + (err?.error?.message || response.statusText));
-    }
-
+    if (!response.ok) { const e = await response.json().catch(() => ({})); throw new Error('API error ' + response.status + ': ' + (e?.error?.message || response.statusText)); }
     const data = await response.json();
     const text = data.content.map(c => c.text || '').join('');
     const match = text.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error('Could not read measurements from image. Make sure the GAF recap page is clearly visible.');
+    if (!match) throw new Error('Could not read measurements. Make sure the GAF recap page is clearly visible.');
     const m = JSON.parse(match[0]);
-
     currentMeasurements = m;
     showQuoteStep(m);
-
   } catch(err) {
     document.getElementById('step-parsing').style.display = 'none';
     document.getElementById('step-upload').style.display = 'block';
-    showError('⚠️ ' + (err.message || 'Failed to process image. Please try again.'));
+    const msg = err.message || 'Unknown error';
+    showError(msg.includes('401') ? 'Invalid API key. Go to Team tab and update your key.' : '&#x26A0; ' + msg);
   }
 }
 
 function fileToBase64(file) {
-  return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = () => res(r.result.split(',')[1]);
-    r.onerror = () => rej(new Error('Failed to read file'));
-    r.readAsDataURL(file);
-  });
+  return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result.split(',')[1]); r.onerror = () => rej(new Error('Failed to read file')); r.readAsDataURL(file); });
 }
-
-function showError(msg) {
-  const el = document.getElementById('uploadError');
-  el.textContent = msg;
-  el.style.display = 'block';
-}
-
-// ============================================================
-// SHOW QUOTE STEP
-// ============================================================
-function showQuoteStep(m) {
-  document.getElementById('step-parsing').style.display = 'none';
-  document.getElementById('step-quote').style.display = 'block';
-  document.getElementById('headerTotal').style.display = 'block';
-
-  // Stats
-  const sq = m.totalWithWaste || m.totalSquares || 0;
-  document.getElementById('statSq').textContent = sq || '—';
-  document.getElementById('statWaste').textContent = m.suggestedWastePct ? m.suggestedWastePct + '%' : '—';
-  document.getElementById('statPitch').textContent = m.predominantPitch || '—';
-  document.getElementById('statFacets').textContent = m.facets || '—';
-
-  // Pre-fill address
-  if (m.address) document.getElementById('jobAddress').value = m.address;
-
-  // Measurement badges
-  const grid = document.getElementById('measGrid');
-  const measItems = [
-    ['Total Sq', m.totalSquares, 'sq'],
-    ['W/ Waste', m.totalWithWaste, 'sq'],
-    ['Ridges', m.ridgesLF, 'LF'],
-    ['Hips', m.hipsLF, 'LF'],
-    ['Valleys', m.valleysLF, 'LF'],
-    ['Rakes', m.rakesLF, 'LF'],
-    ['Eaves', m.eavesLF, 'LF'],
-    ['Flashing', m.flashLF, 'LF'],
-    ['Step Flash', m.stepFlashLF, 'LF'],
-    ['Drip Edge', m.dripEdgeLF, 'LF'],
-    ['Ridge Cap', m.ridgeCapLF, 'LF'],
-    ['Starter', m.starterLF, 'LF'],
-    ['Leak Barrier', m.leakBarrierLF, 'LF'],
-  ];
-  grid.innerHTML = measItems.map(([l, v, u]) => `
-    <div class="meas-card">
-      <div class="m-label">${l}</div>
-      <div class="m-value">${v != null ? Number(v).toLocaleString() : '—'}<span class="m-unit">${v != null ? u : ''}</span></div>
-    </div>`).join('');
-
-  recalc();
-}
-
-// ============================================================
-// CALCULATE & RENDER QUOTE
-// ============================================================
-function recalc() {
-  if (!currentMeasurements) return;
-  const m = currentMeasurements;
-  const sq = m.totalWithWaste || m.totalSquares || 0;
-  const ridgeLF = (m.ridgesLF || 0) + (m.hipsLF || 0);
-  const perimLF = (m.rakesLF || 0) + (m.eavesLF || 0);
-  const flashLF = m.flashLF || 0;
-  const stepLF = m.stepFlashLF || 0;
-
-  const lines = [
-    { cat: 'Materials', label: 'Shingles',              qty: sq + ' sq',              rate: getP('shingles'),    total: sq * getP('shingles') },
-    { cat: 'Materials', label: 'Synthetic Underlayment', qty: sq + ' sq',              rate: getP('underlay'),    total: sq * getP('underlay') },
-    { cat: 'Materials', label: 'Leak Barrier',           qty: (m.leakBarrierLF||0) + ' LF', rate: getP('leakbarrier'), total: (m.leakBarrierLF||0) * getP('leakbarrier') },
-    { cat: 'Materials', label: 'Ridge Cap',              qty: (m.ridgeCapLF||0) + ' LF',    rate: getP('ridgecap'),    total: (m.ridgeCapLF||0) * getP('ridgecap') },
-    { cat: 'Materials', label: 'Starter Strip',          qty: (m.starterLF||0) + ' LF',     rate: getP('starter'),     total: (m.starterLF||0) * getP('starter') },
-    { cat: 'Materials', label: 'Drip Edge',              qty: (m.dripEdgeLF||0) + ' LF',    rate: getP('drip'),        total: (m.dripEdgeLF||0) * getP('drip') },
-    { cat: 'Materials', label: 'Flashing',               qty: flashLF + ' LF',          rate: getP('flash'),       total: flashLF * getP('flash') },
-    { cat: 'Materials', label: 'Step Flashing',          qty: stepLF + ' LF',           rate: getP('stepflash'),   total: stepLF * getP('stepflash') },
-    { cat: 'Materials', label: 'Nails & Fasteners',      qty: sq + ' sq',              rate: getP('nails'),       total: sq * getP('nails') },
-    { cat: 'Labor',     label: 'Installation Labor',     qty: sq + ' sq',              rate: getP('labor'),       total: sq * getP('labor') },
-    { cat: 'Labor',     label: 'Tear-Off & Disposal',    qty: sq + ' sq',              rate: getP('tearoff'),     total: sq * getP('tearoff') },
-    { cat: 'Fees',      label: 'Dumpster',               qty: '1',                      rate: getP('dumpster'),    total: getP('dumpster') },
-    { cat: 'Fees',      label: 'Permit',                 qty: '1',                      rate: getP('permit'),      total: getP('permit') },
-  ];
-
-  const matT = lines.filter(l => l.cat === 'Materials').reduce((s, l) => s + l.total, 0);
-  const labT = lines.filter(l => l.cat === 'Labor').reduce((s, l) => s + l.total, 0);
-  const feeT = lines.filter(l => l.cat === 'Fees').reduce((s, l) => s + l.total, 0);
-  const sub = matT + labT + feeT;
-  const mkup = sub * (getP('markup') / 100);
-  const total = sub + mkup;
-
-  // Render table
-  const cats = ['Materials', 'Labor', 'Fees'];
-  let html = '';
-  cats.forEach(cat => {
-    html += `<tr class="cat-row"><td colspan="4">${cat}</td></tr>`;
-    lines.filter(l => l.cat === cat).forEach(line => {
-      html += `<tr>
-        <td>${line.label}</td>
-        <td class="num">${line.qty}</td>
-        <td class="num">${fmtC(line.rate)}</td>
-        <td class="num">${fmtC(line.total)}</td>
-      </tr>`;
-    });
-  });
-  document.getElementById('quoteBody').innerHTML = html;
-
-  // Totals
-  document.getElementById('quoteTotals').innerHTML = `
-    <div class="total-row"><span>Materials</span><span class="t-amount">${fmtC(matT)}</span></div>
-    <div class="total-row"><span>Labor</span><span class="t-amount">${fmtC(labT)}</span></div>
-    <div class="total-row"><span>Fees</span><span class="t-amount">${fmtC(feeT)}</span></div>
-    <div class="total-row"><span>Subtotal</span><span class="t-amount">${fmtC(sub)}</span></div>
-    <div class="total-row"><span>Markup (${getP('markup')}%)</span><span class="t-amount">${fmtC(mkup)}</span></div>
-    <div class="total-row big"><span>TOTAL</span><span class="t-amount">${fmtC(total)}</span></div>
-    <div class="per-sq">${fmtC(sq > 0 ? total/sq : 0)} per square installed</div>
-  `;
-
-  document.getElementById('headerTotalAmt').textContent = fmtC(total);
-  window._lastTotal = total;
-  window._lastLines = lines;
-  window._lastTotals = { matT, labT, feeT, sub, mkup, total, sq };
-}
-
-// ============================================================
-// SAVE TO HISTORY
-// ============================================================
-function saveQuote() {
-  if (!currentMeasurements || !window._lastTotal) return;
-  const q = {
-    id: Date.now(),
-    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-    customer: document.getElementById('customerName').value || 'Unnamed',
-    address: document.getElementById('jobAddress').value || currentMeasurements.address || 'No address',
-    total: window._lastTotal,
-    sq: window._lastTotals?.sq || 0,
-    measurements: currentMeasurements,
-    lines: window._lastLines,
-    totals: window._lastTotals,
-    markup: getP('markup'),
-  };
-  quoteHistory.unshift(q);
-  localStorage.setItem('rqp_history', JSON.stringify(quoteHistory));
-  alert('Quote saved! View it in the History tab.');
-}
-
-// ============================================================
-// HISTORY
-// ============================================================
-function renderHistory() {
-  const el = document.getElementById('historyList');
-  if (!quoteHistory.length) {
-    el.innerHTML = `<div class="history-empty"><div class="e-icon">&#x1F4CB;</div><div>No saved quotes yet.<br>Create your first estimate above.</div></div>`;
-    return;
-  }
-  el.innerHTML = quoteHistory.map(q => `
-    <div class="history-item" onclick="viewHistoryQuote(${q.id})">
-      <div class="h-addr">${q.customer}</div>
-      <div class="h-meta">
-        <span>${q.address}</span>
-        <span>${q.date}</span>
-      </div>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px">
-        <div class="h-total">${fmtC(q.total)}</div>
-        <span style="font-size:11px; color:var(--muted)">${q.sq} sq w/ waste</span>
-      </div>
-    </div>`).join('');
-}
-
-function viewHistoryQuote(id) {
-  const q = quoteHistory.find(x => x.id === id);
-  if (!q) return;
-  currentMeasurements = q.measurements;
-  document.getElementById('customerName').value = q.customer;
-  document.getElementById('jobAddress').value = q.address;
-  showTab('new');
-  document.querySelectorAll('.nav-tab')[0].classList.add('active');
-  document.querySelectorAll('.nav-tab').forEach((t,i) => { if(i!==0) t.classList.remove('active'); });
-  showQuoteStep(q.measurements);
-}
-
-// ============================================================
-// RESET
-// ============================================================
-function resetToUpload() {
-  currentMeasurements = null;
-  document.getElementById('step-quote').style.display = 'none';
-  document.getElementById('step-upload').style.display = 'block';
-  document.getElementById('uploadError').style.display = 'none';
-  document.getElementById('customerName').value = '';
-  document.getElementById('jobAddress').value = '';
-  document.getElementById('imageInput').value = '';
-  document.getElementById('headerTotal').style.display = 'none';
-}
-
-// ============================================================
-// UTILS
-// ============================================================
-function fmtC(val) {
-  if (val == null) return '—';
-  return '$' + Number(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
+function showError(msg) { const el = document.getElementById('uploadError'); el.innerHTML = msg; el.style.display = 'block'; }
 
 function submitManual() {
+  // Try to parse pitch from pitch field for manual entry
   const m = {
     address: document.getElementById('m_address').value || null,
+    pitchBreakdown: null,
     totalSquares: parseFloat(document.getElementById('m_totalSq').value) || null,
     totalWithWaste: parseFloat(document.getElementById('m_wasteSq').value) || null,
     suggestedWastePct: parseFloat(document.getElementById('m_wastePct').value) || null,
@@ -970,58 +769,213 @@ function submitManual() {
     starterLF: parseFloat(document.getElementById('m_starter').value) || null,
     leakBarrierLF: parseFloat(document.getElementById('m_leak').value) || null,
   };
-  if (!m.totalSquares && !m.totalWithWaste) {
-    alert('Please enter at least Total Squares to generate a quote.');
-    return;
-  }
+  if (!m.totalSquares && !m.totalWithWaste) { alert('Please enter at least Total Squares.'); return; }
   currentMeasurements = m;
-  document.getElementById('manualEntry').style.display = 'none';
-  document.getElementById('uploadError').style.display = 'none';
   showQuoteStep(m);
 }
 
-
-function getApiKey() {
-  return localStorage.getItem('rqp_apikey') || '';
+// ============================================================
+// SHOW QUOTE STEP
+// ============================================================
+function showQuoteStep(m) {
+  document.getElementById('step-parsing').style.display = 'none';
+  document.getElementById('step-upload').style.display = 'none';
+  document.getElementById('step-quote').style.display = 'block';
+  document.getElementById('headerTotal').style.display = 'block';
+  document.getElementById('statSq').textContent = m.totalSquares || '--';
+  document.getElementById('statWaste').textContent = m.totalWithWaste ? m.totalWithWaste + ' sq' : '--';
+  document.getElementById('statPitch').textContent = m.predominantPitch || '--';
+  document.getElementById('statFacets').textContent = m.facets || '--';
+  if (m.address) document.getElementById('jobAddress').value = m.address;
+  const measItems = [
+    ['Total Sq', m.totalSquares, 'sq'],['W/ Waste', m.totalWithWaste, 'sq'],
+    ['Ridges', m.ridgesLF, 'LF'],['Hips', m.hipsLF, 'LF'],['Valleys', m.valleysLF, 'LF'],
+    ['Rakes', m.rakesLF, 'LF'],['Eaves', m.eavesLF, 'LF'],['Flashing', m.flashLF, 'LF'],
+    ['Step Flash', m.stepFlashLF, 'LF'],['Drip Edge', m.dripEdgeLF, 'LF'],
+    ['Ridge Cap', m.ridgeCapLF, 'LF'],['Starter', m.starterLF, 'LF'],['Leak Barrier', m.leakBarrierLF, 'LF'],
+  ];
+  document.getElementById('measGrid').innerHTML = measItems.map(([l, v, u]) =>
+    `<div class="meas-card"><div class="m-label">${l}</div><div class="m-value">${v != null ? Number(v).toLocaleString() : '--'}<span class="m-unit">${v != null ? u : ''}</span></div></div>`
+  ).join('');
+  // Show pitch breakdown if available
+  const pb = m.pitchBreakdown;
+  if (pb && Object.values(pb).some(v => v)) {
+    const pitchRates = {1:75,2:75,3:75,4:75,5:75,6:75,7:75,8:80,9:85,10:90,11:95,12:100,13:105,14:110,15:115,16:120};
+    const pbHTML = Object.entries(pb).filter(([,v])=>v).map(([p,sqft])=>`
+      <div style="display:flex;justify-content:space-between;padding:5px 14px;border-bottom:1px solid #0d1f30;font-size:12px">
+        <span style="color:#94a3b8">${p}/12 pitch — ${sqft.toLocaleString()} sq ft</span>
+        <span style="color:var(--accent)">$${pitchRates[parseInt(p)]||75}/sq labor</span>
+      </div>`).join('');
+    document.getElementById('pitchBreakdownDisplay').innerHTML = pbHTML;
+    document.getElementById('pitchBreakdownCard').style.display = 'block';
+  }
+  recalc();
 }
 
-function saveApiKey() {
-  const key = document.getElementById('apiKeyInput').value.trim();
-  if (!key.startsWith('sk-ant-')) {
-    alert('Please enter a valid Anthropic API key starting with sk-ant-');
+// ============================================================
+// PRINT
+// ============================================================
+function printQuote() {
+  const m = currentMeasurements;
+  if (!m) return;
+  document.getElementById('pq-date').textContent = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  document.getElementById('pq-customer').textContent = document.getElementById('customerName').value || 'Homeowner';
+  document.getElementById('pq-address').textContent = document.getElementById('jobAddress').value || m.address || '--';
+  document.getElementById('pq-phone').textContent = document.getElementById('customerPhone').value || '--';
+  document.getElementById('pq-email').textContent = document.getElementById('customerEmail').value || '--';
+  document.getElementById('pq-price').textContent = fmtC(currentContractPrice);
+  document.getElementById('pq-sqnote').textContent = (m.totalWithWaste || m.totalSquares || 0) + ' squares';
+  document.getElementById('pq-license').textContent = document.getElementById('licenseNo').value || '--';
+  const tierName = currentTier === 'good' ? '30-Year Laminate' : currentTier === 'better' ? 'Atlas Pinnacle (30yr)' : 'Class 4 Impact Resistant (' + (document.getElementById('bestBrand').value || 'Class 4') + ')';
+  const opts = [];
+  if (jobOpts.steep) opts.push('steep pitch');
+  if (jobOpts.twostory) opts.push('2-story');
+  if (jobOpts.zridge) opts.push('Z-Ridge profile cap');
+  document.getElementById('pq-scope').textContent = `Complete roof replacement including full tear-off of existing shingles and felt, installation of ${tierName} shingles, synthetic underlayment, ice and water shield in all valleys, new drip edge, ridge cap, and starter strip.${opts.length ? ' Job includes ' + opts.join(', ') + '.' : ''} All debris hauled off. Landscaping and pool protection included.`;
+  if (additionalItems.length > 0) {
+    document.getElementById('pq-addl-wrap').style.display = 'block';
+    document.getElementById('pq-addl-items').innerHTML = additionalItems.map(i => `<tr><td>${i.desc || 'Additional Item'}</td><td>${fmtC(parseFloat(i.amt)||0)}</td></tr>`).join('');
+  }
+  window.print();
+}
+
+// ============================================================
+// SHARE
+// ============================================================
+function shareQuote() {
+  const m = currentMeasurements;
+  if (!m) return;
+  const customer = document.getElementById('customerName').value || 'Homeowner';
+  const address = document.getElementById('jobAddress').value || m.address || 'Property';
+  const tierName = currentTier === 'good' ? '30-Year Laminate' : currentTier === 'better' ? 'Atlas Pinnacle' : 'Class 4 Impact Resistant';
+  const text = `TROPHY ROOFING & CONSTRUCTION\nRoofing Estimate\n\nCustomer: ${customer}\nProperty: ${address}\nShingles: ${tierName}\n\nTotal Contract Price: ${fmtC(currentContractPrice)}\n\nThis estimate is valid for 30 days.\n\nQuestions? Call us at 682-438-2151\ninfo@trophyroofingdfw.com\ntrophyroofingdfw.com`;
+  if (navigator.share) {
+    navigator.share({ title: 'Roofing Estimate — Trophy Roofing', text });
+  } else {
+    navigator.clipboard.writeText(text).then(() => alert('Quote copied to clipboard! Paste it into a text or email.'));
+  }
+}
+
+// ============================================================
+// SAVE / HISTORY
+// ============================================================
+function saveQuote() {
+  if (!currentMeasurements) return;
+  const q = {
+    id: Date.now(),
+    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    customer: document.getElementById('customerName').value || 'Unnamed',
+    address: document.getElementById('jobAddress').value || currentMeasurements.address || 'No address',
+    phone: document.getElementById('customerPhone').value || '',
+    email: document.getElementById('customerEmail').value || '',
+    total: currentContractPrice,
+    sq: currentMeasurements.totalWithWaste || currentMeasurements.totalSquares || 0,
+    tier: currentTier,
+    measurements: currentMeasurements,
+    additionalItems: [...additionalItems],
+    jobOpts: {...jobOpts},
+    commType: currentCommType,
+    sliderVal: document.getElementById('marginSlider').value,
+  };
+  quoteHistory.unshift(q);
+  localStorage.setItem('rqp_history', JSON.stringify(quoteHistory));
+  alert('Quote saved!');
+}
+
+function renderHistory() {
+  const el = document.getElementById('historyList');
+  if (!quoteHistory.length) {
+    el.innerHTML = `<div class="history-empty"><div style="font-size:40px; margin-bottom:10px">&#x1F4CB;</div><div>No saved quotes yet.</div></div>`;
     return;
   }
-  localStorage.setItem('rqp_apikey', key);
-  showMainApp();
+  el.innerHTML = quoteHistory.map(q => `
+    <div class="history-item" onclick="loadHistoryQuote(${q.id})">
+      <div class="h-addr">${q.customer}</div>
+      <div class="h-meta"><span>${q.address}</span><span>${q.date}</span></div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px">
+        <div class="h-total">${fmtC(q.total)}</div>
+        <span style="font-size:11px; color:var(--muted)">${q.sq} sq &middot; ${q.tier}</span>
+      </div>
+    </div>`).join('');
 }
 
-function showMainApp() {
-  document.getElementById('apiKeyScreen').style.display = 'none';
-  document.getElementById('mainApp').style.display = 'flex';
-  document.getElementById('navTabs').style.display = 'flex';
-  document.getElementById('mainContent').style.display = 'block';
-  document.getElementById('safeBottom').style.display = 'block';
+function loadHistoryQuote(id) {
+  const q = quoteHistory.find(x => x.id === id);
+  if (!q) return;
+  currentMeasurements = q.measurements;
+  additionalItems = q.additionalItems || [];
+  jobOpts = q.jobOpts || { steep: false, twostory: false, extrafelt: false, zridge: false };
+  currentCommType = q.commType || 'company';
+  currentTier = q.tier || 'good';
+  document.getElementById('customerName').value = q.customer;
+  document.getElementById('jobAddress').value = q.address;
+  document.getElementById('customerPhone').value = q.phone || '';
+  document.getElementById('customerEmail').value = q.email || '';
+  if (q.sliderVal) document.getElementById('marginSlider').value = q.sliderVal;
+  setTier(currentTier);
+  ['twostory','extrafelt','zridge'].forEach(o => { const el = document.getElementById('toggle-' + o); if(el) el.classList.toggle('active', jobOpts[o]); });
+  renderAdditionalItems();
+  showTab('new', document.querySelector('.nav-tab'));
+  document.querySelectorAll('.nav-tab').forEach((t,i) => t.classList.toggle('active', i===0));
+  showQuoteStep(q.measurements);
 }
 
-function checkApiKey() {
-  const key = getApiKey();
-  if (!key) {
-    document.getElementById('apiKeyScreen').style.display = 'flex';
-    document.getElementById('apiKeyScreen').style.flexDirection = 'column';
-    document.getElementById('apiKeyScreen').style.alignItems = 'center';
-    document.getElementById('apiKeyScreen').style.justifyContent = 'center';
-  } else {
-    showMainApp();
-  }
+// ============================================================
+// RESET
+// ============================================================
+function resetToUpload() {
+  currentMeasurements = null;
+  additionalItems = [];
+  jobOpts = { twostory: false, extrafelt: false, zridge: false };
+  document.getElementById('step-quote').style.display = 'none';
+  document.getElementById('step-upload').style.display = 'block';
+  document.getElementById('uploadError').style.display = 'none';
+  document.getElementById('customerName').value = '';
+  document.getElementById('jobAddress').value = '';
+  document.getElementById('customerPhone').value = '';
+  document.getElementById('customerEmail').value = '';
+  document.getElementById('imageInput').value = '';
+  document.getElementById('headerTotal').style.display = 'none';
+  document.getElementById('manualEntry').style.display = 'none';
+  document.getElementById('manualBtn').style.display = 'block';
+  ['good','better','best'].forEach(t => document.getElementById('tier-' + t).classList.remove('active'));
+  document.getElementById('tier-good').classList.add('active');
+  currentTier = 'good';
+  Object.keys(jobOpts).forEach(o => document.getElementById('toggle-' + o).classList.remove('active'));
+  renderAdditionalItems();
+}
+
+// ============================================================
+// API KEY
+// ============================================================
+function getApiKey() { return localStorage.getItem('rqp_apikey') || ''; }
+function saveSettings() {
+  localStorage.setItem('rqp_settings', JSON.stringify({
+    companyName: document.getElementById('companyName').value,
+    licenseNo: document.getElementById('licenseNo').value,
+  }));
+}
+function loadSettings() {
+  const s = JSON.parse(localStorage.getItem('rqp_settings') || '{}');
+  if (s.companyName) document.getElementById('companyName').value = s.companyName;
+  if (s.licenseNo) document.getElementById('licenseNo').value = s.licenseNo;
+  const k = getApiKey();
+  if (k) document.getElementById('apiKeyDisplay').value = k;
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function fmtC(val) {
+  if (val == null) return '--';
+  return '$' + Number(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 // ============================================================
 // INIT
 // ============================================================
-loadPricing();
+loadCosts();
 loadSettings();
-checkApiKey();
-const _k = getApiKey(); if(_k) { const _el = document.getElementById('apiKeyDisplay'); if(_el) _el.value = _k; }
 </script>
 </body>
 </html>
