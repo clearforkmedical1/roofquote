@@ -527,7 +527,7 @@ function loadCosts() {
 function calcHardCost(m) {
   if (!m) return 0;
   const taxRate = 1 + (getC('c_tax') / 100);
-  const actualSq = m.totalSquares || 0;
+  const actualSq = Math.round(m.totalSquares || 0);
   const wasteSq = m.totalWithWaste || actualSq;
   const valleysLF = m.valleysLF || 0;
   const dripLF = m.dripEdgeLF || ((m.rakesLF||0) + (m.eavesLF||0));
@@ -739,33 +739,64 @@ async function loadPDFJS() {
     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 }
 
+// Extract text from a PDF page to help identify report type
+async function getPageText(pdf, pageNum) {
+  try {
+    const page = await pdf.getPage(pageNum);
+    const content = await page.getTextContent();
+    return content.items.map(i => i.str).join(' ').toLowerCase();
+  } catch(e) { return ''; }
+}
+
 // Convert a specific PDF page to a base64 image
 async function pdfPageToBase64(file, pageNum) {
   await loadPDFJS();
   const arrayBuffer = await file.arrayBuffer();
   const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
   const totalPages = pdf.numPages;
-  
-  // Find the summary page - look for page with waste % table
-  // For GAF: try page 7 first, then scan for summary page
-  // For Roofr: usually page 1
   let targetPage = pageNum || 1;
-  
+
   if (!pageNum) {
-    // Try to find the summary/recap page by rendering and checking
-    // Default: for GAF use page 7, for single-page use page 1
-    targetPage = totalPages >= 7 ? 7 : 1;
+    // Scan all pages to find the summary/recap page
+    // Look for the page that has the most measurement data
+    let found = false;
+
+    // Keywords that indicate a summary page
+    const summaryKeywords = ['ridge cap', 'starter', 'drip edge', 'leak barrier', 'hips + ridges', 'eaves + rakes', 'report summary'];
+    const wasteKeywords = ['waste', 'squares', 'suggested'];
+
+    for (let p = 1; p <= totalPages; p++) {
+      const text = await getPageText(pdf, p);
+      const hasSummaryKw = summaryKeywords.filter(k => text.includes(k)).length >= 2;
+      const hasWasteKw = wasteKeywords.filter(k => text.includes(k)).length >= 2;
+      if (hasSummaryKw && hasWasteKw) {
+        targetPage = p;
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      // Secondary scan — look for page with most measurement keywords
+      let bestScore = 0;
+      const measureKw = ['eaves', 'valleys', 'hips', 'ridges', 'rakes', 'flashing', 'pitch', 'squares', 'facets'];
+      for (let p = 1; p <= totalPages; p++) {
+        const text = await getPageText(pdf, p);
+        const score = measureKw.filter(k => text.includes(k)).length;
+        if (score > bestScore) { bestScore = score; targetPage = p; }
+      }
+    }
   }
-  
+
   const page = await pdf.getPage(Math.min(targetPage, totalPages));
-  const viewport = page.getViewport({ scale: 2.0 }); // High res for AI reading
+  const viewport = page.getViewport({ scale: 2.5 }); // Higher res for better AI reading
   const canvas = document.createElement('canvas');
   canvas.width = viewport.width;
   canvas.height = viewport.height;
   const ctx = canvas.getContext('2d');
   await page.render({ canvasContext: ctx, viewport }).promise;
-  const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
-  return { base64: dataUrl.split(',')[1], totalPages };
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+  return { base64: dataUrl.split(',')[1], totalPages, targetPage };
 }
 
 async function handleImageUpload(event) {
@@ -785,7 +816,7 @@ async function handleImageUpload(event) {
       document.getElementById('parsingMsg').textContent = 'Loading PDF...';
       const result = await pdfPageToBase64(file, null);
       base64 = result.base64;
-      document.getElementById('parsingMsg').textContent = `Reading summary page (of ${result.totalPages} pages)...`;
+      document.getElementById('parsingMsg').textContent = `Reading page ${result.targetPage} of ${result.totalPages}...`;
     } else {
       document.getElementById('parsingMsg').textContent = 'Reading image...';
       base64 = await fileToBase64(file);
@@ -866,7 +897,7 @@ function showQuoteStep(m) {
   document.getElementById('step-upload').style.display = 'none';
   document.getElementById('step-quote').style.display = 'block';
   document.getElementById('headerTotal').style.display = 'block';
-  document.getElementById('statSq').textContent = m.totalSquares || '--';
+  document.getElementById('statSq').textContent = m.totalSquares ? Math.round(m.totalSquares) : '--';
   document.getElementById('statWaste').textContent = m.totalWithWaste ? m.totalWithWaste + ' sq' : '--';
   document.getElementById('statPitch').textContent = m.predominantPitch || '--';
   document.getElementById('statFacets').textContent = m.facets || '--';
