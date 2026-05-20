@@ -109,6 +109,8 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
   .no-print { display: none !important; }
   .print-only { display: block !important; }
   #printQuote { display: block !important; }
+  .header, .nav-tabs, .main, #mainApp, #navTabs, #mainContent, .safe-bottom { display: none !important; }
+  #printQuote { display: block !important; position: static !important; }
 }
 #printQuote { display: none; }
 .print-only { display: none; }
@@ -225,7 +227,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
         <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:10px">Shingle Tier</div>
         <div style="display:flex; gap:8px">
           <button class="tier-btn active" id="tier-good" onclick="setTier('good')">&#x2B50; Good<br><span style="font-size:10px; color:var(--muted)">30yr Laminate</span></button>
-          <button class="tier-btn" id="tier-better" onclick="setTier('better')">&#x2B50;&#x2B50; Better<br><span style="font-size:10px; color:var(--muted)">Atlas Pinnacle</span></button>
+          <button class="tier-btn" id="tier-better" onclick="setTier('better')">&#x2B50;&#x2B50; Better<br><span style="font-size:10px; color:var(--muted)">Class 3</span></button>
           <button class="tier-btn" id="tier-best" onclick="setTier('best')">&#x2B50;&#x2B50;&#x2B50; Best<br><span style="font-size:10px; color:var(--muted)">Class 4</span></button>
         </div>
         <div id="bestBrandWrap" style="display:none; margin-top:10px">
@@ -413,13 +415,33 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
   </style>
   <div class="pq-header">
     <div class="pq-logo-area">
-      <h1>TROPHY ROOFING</h1>
-      <p>& CONSTRUCTION</p>
-      <p style="margin-top:6px; font-size:11px; color:#888">11975 Cleveland Gibbs Rd. Suite 110<br>Roanoke, TX 76262</p>
+      <img src="data:application/pdf;base64,JVBERi0xLjMKJcTl8uXrp/Og0MTGCjQgMCBvYmoKPDwgL0xlbmd0aCA1IDAgUiAvRmlsdGVyIC9GbGF0ZURlY29kZSA+PgpzdHJl..." style="display:none">
+      <!-- Trophy Roofing Logo -->
+      <svg width="260" height="90" viewBox="0 0 420 90" xmlns="http://www.w3.org/2000/svg">
+        <!-- House/roof icon -->
+        <g transform="translate(0,5)">
+          <!-- Main roof shape -->
+          <polygon points="55,5 5,50 20,50 20,78 90,78 90,50 105,50" fill="none" stroke="#3B5FC0" stroke-width="7" stroke-linejoin="round"/>
+          <!-- Windows grid -->
+          <rect x="38" y="42" width="11" height="11" fill="#3B5FC0"/>
+          <rect x="52" y="42" width="11" height="11" fill="#3B5FC0"/>
+          <rect x="38" y="56" width="11" height="11" fill="#3B5FC0"/>
+          <rect x="52" y="56" width="11" height="11" fill="#3B5FC0"/>
+          <!-- Trophy/ribbon on top -->
+          <line x1="55" y1="5" x2="45" y2="0" stroke="#3B5FC0" stroke-width="3"/>
+          <line x1="55" y1="5" x2="48" y2="-5" stroke="#3B5FC0" stroke-width="2.5"/>
+          <polygon points="40,-2 43,4 37,4" fill="#3B5FC0"/>
+        </g>
+        <!-- TROPHY text -->
+        <text x="120" y="48" font-family="Arial Black, Arial" font-weight="900" font-size="38" fill="#3B5FC0" letter-spacing="1">TROPHY</text>
+        <!-- ROOFING & CONSTRUCTION -->
+        <text x="122" y="68" font-family="Arial" font-weight="600" font-size="13" fill="#3B5FC0" letter-spacing="3.5">ROOFING &amp; CONSTRUCTION</text>
+      </svg>
     </div>
     <div class="pq-contact">
-      <strong style="font-size:14px; color:#1a3a6a">ROOFING ESTIMATE</strong><br>
-      <span id="pq-date"></span><br><br>
+      <strong style="font-size:16px; color:#1a3a6a; display:block; margin-bottom:6px">ROOFING ESTIMATE</strong>
+      <span id="pq-date" style="font-size:12px"></span><br>
+      <strong style="font-size:13px; color:#1a3a6a">Quote #<span id="pq-quotenum"></span></strong><br><br>
       &#x260E; 682-438-2151<br>
       &#x2709; info@trophyroofingdfw.com<br>
       trophyroofingdfw.com
@@ -801,10 +823,11 @@ function showQuoteStep(m) {
   const pb = m.pitchBreakdown;
   if (pb && Object.values(pb).some(v => v)) {
     const pitchRates = {1:75,2:75,3:75,4:75,5:75,6:75,7:75,8:80,9:85,10:90,11:95,12:100,13:105,14:110,15:115,16:120};
+    const totalSqFt = Object.values(pb).reduce((s,v)=>s+(v||0),0) || 1;
     const pbHTML = Object.entries(pb).filter(([,v])=>v).map(([p,sqft])=>`
       <div style="display:flex;justify-content:space-between;padding:5px 14px;border-bottom:1px solid #0d1f30;font-size:12px">
-        <span style="color:#94a3b8">${p}/12 pitch — ${sqft.toLocaleString()} sq ft</span>
-        <span style="color:var(--accent)">$${pitchRates[parseInt(p)]||75}/sq labor</span>
+        <span style="color:#94a3b8">${p}/12 pitch</span>
+        <span style="color:var(--text)">${sqft.toLocaleString()} sq ft (${((sqft/totalSqFt)*100).toFixed(0)}%)</span>
       </div>`).join('');
     document.getElementById('pitchBreakdownDisplay').innerHTML = pbHTML;
     document.getElementById('pitchBreakdownCard').style.display = 'block';
@@ -826,7 +849,7 @@ function printQuote() {
   document.getElementById('pq-price').textContent = fmtC(currentContractPrice);
   document.getElementById('pq-sqnote').textContent = (m.totalWithWaste || m.totalSquares || 0) + ' squares';
   document.getElementById('pq-license').textContent = document.getElementById('licenseNo').value || '--';
-  const tierName = currentTier === 'good' ? '30-Year Laminate' : currentTier === 'better' ? 'Atlas Pinnacle (30yr)' : 'Class 4 Impact Resistant (' + (document.getElementById('bestBrand').value || 'Class 4') + ')';
+  const tierName = currentTier === 'good' ? '30-Year Laminate' : currentTier === 'better' ? 'Class 3 (30yr)' : 'Class 4 Impact Resistant (' + (document.getElementById('bestBrand').value || 'Class 4') + ')';
   const opts = [];
   if (jobOpts.steep) opts.push('steep pitch');
   if (jobOpts.twostory) opts.push('2-story');
@@ -847,7 +870,7 @@ function shareQuote() {
   if (!m) return;
   const customer = document.getElementById('customerName').value || 'Homeowner';
   const address = document.getElementById('jobAddress').value || m.address || 'Property';
-  const tierName = currentTier === 'good' ? '30-Year Laminate' : currentTier === 'better' ? 'Atlas Pinnacle' : 'Class 4 Impact Resistant';
+  const tierName = currentTier === 'good' ? '30-Year Laminate' : currentTier === 'better' ? 'Class 3 Impact Resistant' : 'Class 4 Impact Resistant';
   const text = `TROPHY ROOFING & CONSTRUCTION\nRoofing Estimate\n\nCustomer: ${customer}\nProperty: ${address}\nShingles: ${tierName}\n\nTotal Contract Price: ${fmtC(currentContractPrice)}\n\nThis estimate is valid for 30 days.\n\nQuestions? Call us at 682-438-2151\ninfo@trophyroofingdfw.com\ntrophyroofingdfw.com`;
   if (navigator.share) {
     navigator.share({ title: 'Roofing Estimate — Trophy Roofing', text });
@@ -861,8 +884,12 @@ function shareQuote() {
 // ============================================================
 function saveQuote() {
   if (!currentMeasurements) return;
+  const nextNum = (parseInt(localStorage.getItem('rqp_quotenum') || '497') + 1);
+  localStorage.setItem('rqp_quotenum', nextNum);
+  const quoteNum = 'T' + String(nextNum).padStart(5, '0');
   const q = {
     id: Date.now(),
+    quoteNum,
     date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
     customer: document.getElementById('customerName').value || 'Unnamed',
     address: document.getElementById('jobAddress').value || currentMeasurements.address || 'No address',
