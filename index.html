@@ -962,7 +962,7 @@ function printQuote() {
   document.getElementById('pq-email').textContent = document.getElementById('customerEmail').value || '--';
   document.getElementById('pq-price').textContent = fmtC(currentContractPrice);
   document.getElementById('pq-sqnote').textContent = (m.totalWithWaste || m.totalSquares || 0) + ' squares | Predominant pitch: ' + (m.predominantPitch || '--');
-  document.getElementById('pq-license').textContent = document.getElementById('licenseNo').value || '--';
+  // License not required in Texas
   const tierName = currentTier === 'good' ? '30-Year Laminate' : currentTier === 'better' ? 'Class 3 (30yr)' : 'Class 4 Impact Resistant (' + (document.getElementById('bestBrand').value || 'Class 4') + ')';
   const opts = [];
   if (jobOpts.steep) opts.push('steep pitch');
