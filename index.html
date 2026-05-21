@@ -307,12 +307,13 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
         <div class="margin-bar-wrap">
           <div class="margin-bar-label">
             <div>
-              <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em">Gross Margin</div>
+              <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em">Actual Margin</div>
               <div style="display:flex; align-items:center; gap:6px;">
             <div class="margin-pct good" id="marginPct">0%</div>
             <input type="number" id="marginInput" min="0" max="70" step="0.5" value="35"
               oninput="onMarginInputChange(this.value)"
-              style="width:58px; background:#0f172a; border:1px solid #334155; border-radius:6px; color:#4ade80; padding:3px 6px; font-size:16px; font-weight:800; text-align:center; font-family:monospace;">
+              title="Target margin % — actual margin shown in large number"
+              style="width:58px; background:#0f172a; border:1px solid #334155; border-radius:6px; color:var(--muted); padding:3px 6px; font-size:13px; font-weight:600; text-align:center; font-family:monospace;">
           </div>
             </div>
             <div style="text-align:right">
@@ -325,6 +326,9 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
           <input type="range" class="margin-slider" id="marginSlider" min="0" max="70" value="35" step="0.5" oninput="onSliderChange(this.value)">
           <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--muted)">
             <span>0%</span><span style="color:var(--yellow)">28% min</span><span>70%</span>
+          </div>
+          <div style="font-size:10px; color:var(--muted); margin-top:4px; text-align:center; opacity:0.7;">
+            Large % = actual margin &nbsp;|&nbsp; Input box = target margin setting
           </div>
           <div id="marginWarning" style="display:none"></div>
           <div class="commission-box">
@@ -365,10 +369,29 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
               <span>Material Cost (w/ tax)</span><span id="hc_material" style="font-family:monospace;">$0</span>
             </div>
           </div>
+          <!-- Custom Material Items -->
+          <div style="border-top:1px solid var(--border);">
+            <div style="padding:8px 14px; display:flex; justify-content:space-between; align-items:center; background:#07101a;">
+              <div style="font-size:11px; font-weight:700; color:var(--accent);">&#x2795; Custom Material Items</div>
+              <button onclick="addCustomMaterial()" style="background:none; border:1px solid var(--accent); color:var(--accent); border-radius:6px; padding:3px 10px; font-size:11px; cursor:pointer; font-family:inherit;">+ Add Item</button>
+            </div>
+            <div id="customMaterialList"></div>
+            <div style="padding:4px 14px 8px; font-size:10px; color:var(--muted);">Add pipe jacks, vents, OSB, skylights, or anything not in the GAF report</div>
+          </div>
+
           <!-- Sub invoice section -->
           <div style="padding:10px 14px; border-top:1px solid var(--border); background:#080f1a;">
             <div style="font-size:11px; font-weight:700; color:var(--yellow); margin-bottom:10px;">&#x1F4CB; Sub Labor Invoice</div>
             <div id="subInvoiceTable" style="font-size:12px;"></div>
+            <!-- Custom Labor Items -->
+            <div style="margin-top:10px; border-top:1px solid var(--border); padding-top:10px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <div style="font-size:11px; font-weight:700; color:var(--yellow);">&#x2795; Additional Labor Items</div>
+                <button onclick="addCustomLabor()" style="background:none; border:1px solid var(--yellow); color:var(--yellow); border-radius:6px; padding:3px 10px; font-size:11px; cursor:pointer; font-family:inherit;">+ Add</button>
+              </div>
+              <div style="font-size:10px; color:var(--muted); margin-bottom:6px;">Add unforeseen items: OSB replacement, extra layers, skylights, chimney flashing, etc.</div>
+              <div id="customLaborList"></div>
+            </div>
             <div style="margin-top:10px; display:flex; gap:8px;">
               <button onclick="shareSubInvoice()" style="flex:1; background:var(--surface2); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:8px; font-size:12px; font-family:inherit; cursor:pointer;">&#x1F4E4; Share Sub Invoice</button>
               <button onclick="screenshotSubInvoice()" style="flex:1; background:var(--surface2); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:8px; font-size:12px; font-family:inherit; cursor:pointer;">&#x1F4F8; Screenshot</button>
@@ -395,6 +418,22 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
         <button class="btn-action" onclick="shareQuote()" style="background:var(--surface2); color:var(--text); border:1px solid var(--border)">&#x1F4E4; Share</button>
       </div>
       <button class="btn-primary" onclick="saveQuote()" style="margin-bottom:6px">&#x1F4BE; Save to History</button>
+      <!-- CompanyCam Integration -->
+      <div class="card" style="margin-top:10px; padding:14px; border-color:#1e3a5f;" id="ccamCard">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+          <div style="font-size:13px; font-weight:700; color:#38bdf8;">&#x1F4F7; CompanyCam</div>
+          <div id="ccamStatus" style="font-size:11px; color:var(--muted);">Not linked</div>
+        </div>
+        <div id="ccamLinked" style="display:none; margin-bottom:8px;">
+          <div style="font-size:12px; color:var(--green); margin-bottom:6px;">&#x2705; Project linked</div>
+          <div id="ccamPhotosPreview" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:6px;"></div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button onclick="createCCamProject()" id="ccamCreateBtn" style="flex:1; background:var(--surface2); border:1px solid var(--accent2); color:var(--accent2); border-radius:8px; padding:8px; font-size:12px; font-family:inherit; cursor:pointer;">&#x2795; Create CC Project</button>
+          <button onclick="openCCamProject()" id="ccamOpenBtn" style="flex:1; background:var(--surface2); border:1px solid var(--border); color:var(--muted); border-radius:8px; padding:8px; font-size:12px; font-family:inherit; cursor:pointer;" disabled>&#x1F517; Open in CompanyCam</button>
+        </div>
+      </div>
+
       <input type="hidden" id="eSignName" value="">
       <input type="hidden" id="eSignDate" value="">
       <div class="card" style="margin-top:10px; padding:14px;">
@@ -464,7 +503,9 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
       <div class="card-header">API Key</div>
       <div style="padding:14px">
         <div class="field-wrap"><div class="field-label">Anthropic API Key</div><input class="field-input" id="apiKeyDisplay" type="password" placeholder="sk-ant-api03-..." style="font-family:monospace; font-size:12px;" oninput="localStorage.setItem('rqp_apikey', this.value)"></div>
-        <p style="font-size:11px; color:var(--muted)">Stored only on this device. Get keys at console.anthropic.com</p>
+        <p style="font-size:11px; color:var(--muted); margin-bottom:12px;">Stored only on this device. Get keys at console.anthropic.com</p>
+        <div class="field-wrap" style="margin-bottom:4px;"><div class="field-label">CompanyCam API Token</div><input class="field-input" id="ccamTokenDisplay" type="password" placeholder="Paste CompanyCam token..." style="font-family:monospace; font-size:12px;" oninput="localStorage.setItem('rqp_ccam', this.value)"></div>
+        <p style="font-size:11px; color:var(--muted)">Get token from CompanyCam → Settings → Integrations → API Token</p>
       </div>
     </div>
     <div class="card">
@@ -584,10 +625,10 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
       </div>
     </div>
 
-    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:20px;">
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:16px; page-break-inside:avoid;">
 
       <!-- GOOD -->
-      <div style="border:2px solid #cbd5e1; border-radius:12px; overflow:hidden;">
+      <div style="border:2px solid #cbd5e1; border-radius:12px; overflow:hidden; page-break-inside:avoid; break-inside:avoid;">
         <div style="background:#f1f5f9; padding:16px; text-align:center; border-bottom:1px solid #cbd5e1;">
           <div style="font-size:11px; color:#64748b; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:4px;">Good</div>
           <div style="font-size:22px; font-weight:900; color:#334155;">&#x2B50;</div>
@@ -611,7 +652,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
       </div>
 
       <!-- BETTER -->
-      <div style="border:2px solid #1a3a6a; border-radius:12px; overflow:hidden; position:relative;">
+      <div style="border:2px solid #1a3a6a; border-radius:12px; overflow:hidden; page-break-inside:avoid; break-inside:avoid;">
         <div style="background:#1a3a6a; padding:16px; text-align:center; border-bottom:1px solid #1a3a6a;">
           <div style="font-size:10px; color:#93c5fd; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:4px;">Most Popular</div>
           <div style="font-size:22px; font-weight:900; color:white;">&#x2B50;&#x2B50;</div>
@@ -635,7 +676,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
       </div>
 
       <!-- BEST -->
-      <div style="border:2px solid #7c3aed; border-radius:12px; overflow:hidden;">
+      <div style="border:2px solid #7c3aed; border-radius:12px; overflow:hidden; page-break-inside:avoid; break-inside:avoid;">
         <div style="background:#f5f3ff; padding:16px; text-align:center; border-bottom:1px solid #ddd6fe;">
           <div style="font-size:11px; color:#7c3aed; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:4px;">Best</div>
           <div style="font-size:22px; font-weight:900; color:#7c3aed;">&#x2B50;&#x2B50;&#x2B50;</div>
@@ -671,6 +712,73 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
   </div>
 
   <!-- Terms & Conditions Page -->
+  <div id="pq-tc-page" style="page-break-before:always; margin:0; padding:32px 40px; font-family:Arial, sans-serif; font-size:10.5px; color:#222; line-height:1.55;">
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid #1a3a6a; padding-bottom:12px; margin-bottom:16px;">
+      <div>
+        <div style="font-family:Arial Black,Arial; font-weight:900; font-size:20px; color:#1a3a6a; line-height:1.2;">TROPHY ROOFING</div>
+        <div style="font-family:Arial Black,Arial; font-weight:900; font-size:20px; color:#1a3a6a; line-height:1.2;">&amp; CONSTRUCTION LLC</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:16px; font-weight:700; color:#1a3a6a; margin-bottom:3px;">AGREEMENT</div>
+        <div style="font-size:11px; color:#444;">817-523-9476</div>
+        <div style="font-size:11px; color:#444;">info@trophyroofingdfw.com</div>
+      </div>
+    </div>
+    <div style="columns:2; column-gap:22px; font-size:10px; line-height:1.55; color:#222; orphans:3; widows:3;">
+      <p style="margin:0 0 7px;"><strong>1.</strong> This Agreement (the &ldquo;Contract&rdquo; or &ldquo;Agreement&rdquo;) includes all of the terms, covenants, and/or conditions set forth herein, contains all of the covenants and agreements between the parties with respect to the subject matter hereof and supersedes any and all other prior agreements, between Owner and Contractor. Contractor shall have no obligation to commence or continue the Work until it has received: i) a fully executed copy of this Agreement; ii) construction permits (if applicable); and iii) verification of funding for the Work (if requested) and as provided herein. As used herein, the term &ldquo;Owner&rdquo; shall mean that entity with whom Contractor has executed the Agreement. As a condition precedent to the Contractor&rsquo;s obligation to commence or continue the Work, upon written request of the Contractor, Owner will provide evidence relating to the Owner&rsquo;s financial ability to pay for the Work and/or any policies of insurance applicable to the Work. Such evidence will be provided within seven (7) days of Contractor&rsquo;s request.</p>
+      <p style="margin:0 0 7px;"><strong>2.</strong> The Owner represents and warrants that it has the authority to enter into this Agreement and has secured all necessary access, permissions, easements and permits from the property owner(s) and/or the appropriate governmental authorities that are necessary and required for the Contractor to perform the Work. If required for the Work, the Owner will retain duly licensed and qualified architects, engineers or other design professionals (&ldquo;Owner&rsquo;s Consultants&rdquo;) to provide services related to the Work.</p>
+      <p style="margin:0 0 7px;"><strong>3.</strong> All Work shall be performed by the Contractor in a good and workmanlike manner and all materials furnished and used in connection therewith shall be of good quality unless otherwise directed by the Owner and/or the Owner&rsquo;s Consultants.</p>
+      <p style="margin:0 0 7px;"><strong>4.</strong> Owner and Contractor may modify or change the Work only through a written modification executed by Owner, a Field Representative of Contractor and countersigned by an Officer of Contractor. In the event of such change, the Contract Amount and the contract time will be equitably adjusted, including reasonable increases for overhead and profit. If the Parties cannot come to an agreement as to the amount of such adjustment, Contractor shall proceed with the additional work on a time and materials basis with a 15% markup to cover overhead and profit.</p>
+      <p style="margin:0 0 7px;"><strong>5.</strong> In the event Contractor is unable to commence the Work within 180 days following the Effective Date, Contractor will, in its sole discretion, be entitled to: (i) an increase in the Contract Amount to reflect increases in labor and material costs, or (ii) to terminate this Agreement, whereupon all obligations of Owner and Contractor related to this Agreement shall terminate except that Contractor shall be entitled to payment for costs of cancellation of material orders, subcontracts and demobilization.</p>
+      <p style="margin:0 0 7px;"><strong>6.</strong> Invoices will be paid by the Owner no later than thirty (30) days after submittal by the Contractor. Unpaid amounts shall bear interest at the lesser of eighteen percent (18%) per annum or the highest rate allowed by applicable law.</p>
+      <p style="margin:0 0 7px;"><strong>7.</strong> Owner may terminate this Agreement for any reason: (i) during the three (3) day period following the Effective Date or (ii) if Contractor fails to commence the Work within thirty (30) days following receipt of written notice from Owner given on or after the 180th day following Effective Date. Following commencement of the Work, Owner may not terminate this Agreement without Contractor&rsquo;s prior written consent. IF OWNER TERMINATES THIS AGREEMENT OTHER THAN AS PROVIDED HEREIN, THE DAMAGES SUSTAINED BY CONTRACTOR WOULD BE DIFFICULT, IF NOT IMPOSSIBLE TO ASCERTAIN, ACCORDINGLY, UPON SUCH TERMINATION OWNER AGREES TO PAY TO CONTRACTOR, AS LIQUIDATED DAMAGES AND NOT AS PENALTY, AN AMOUNT EQUAL TO FIFTEEN PERCENT (15%) OF THE TOTAL CONTRACT AMOUNT plus costs of cancellation of material orders, subcontracts and demobilization.</p>
+      <p style="margin:0 0 7px;"><strong>8.</strong> Upon seven (7) days&rsquo; written notice to the Owner, the Contractor may terminate this Agreement if (i) the Work has been stopped for a period of at least fifteen (15) days through no fault of the Contractor; (ii) if the Owner fails to furnish financial evidence in accordance with Paragraph 1 of this Agreement; (iii) if the Owner fails to pay the Contractor in accordance with this Agreement; or (iv) if the Owner otherwise materially breaches this Agreement. Upon termination, the Contractor shall be entitled to recover payment for all Work executed plus overhead and profit thereon and for any loss, cost or expense in connection with the Work including, but not limited to, costs of cancellation of material orders, subcontracts and demobilization, and attorney&rsquo;s fees incurred in connection with such termination.</p>
+      <p style="margin:0 0 7px;"><strong>9. Contractor&rsquo;s Limited Warranty.</strong> The Contractor warrants that the Work will be free from leaks caused by defects in the installation for a period of two (2) years following substantial completion of the Project (the &ldquo;Warranty Period&rdquo;). During the Warranty Period, Contractor&rsquo;s obligation will be to provide necessary labor to address and repair such leaks. THE CONTRACTOR MAKES NO OTHER WARRANTY OF ANY KIND EITHER EXPRESS OR IMPLIED RELATED TO THE WORK OR THIS AGREEMENT INCLUDING, BUT NOT LIMITED TO, THAT THE WORK IS FIT FOR ANY PARTICULAR PURPOSE. ANY WARRANTIES AND/OR GUARANTEES WHICH ARE NOT EXPRESSLY PROVIDED FOR HEREIN ARE HEREBY EXPRESSLY WAIVED AND DISCLAIMED IN FULL. THIS LIMITED WARRANTY IS CONDITIONED ON THE OWNER&rsquo;S ADHERENCE TO THE TERMS SET FORTH HEREIN AND IS NON-TRANSFERABLE. The Contractor&rsquo;s Limited Warranty excludes damage caused by improper maintenance, abuse, ordinary wear and tear, accidents, cosmetic damage, usage contrary to any applicable specifications or damage caused by acts of God or others. To the extent assignable, Contractor will assign to Owner all manufacturer and supplier guarantees and/or warranties related to materials furnished in connection with the Work.</p>
+      <p style="margin:0 0 7px;"><strong>10. Limitation of Liability.</strong> Contractor shall not be liable to Owner or others for: (i) any defect in the property (whether apparent, hidden, disclosed or undisclosed); (ii) for any damage to solar panels or other fixtures (Owner shall be responsible for engaging a professional experienced in the care of maintenance of such solar panels or other fixtures during the performance of the Work); (iii) any damage to the interior of the Property or the contents thereof provided that Contractor has taken commercially reasonable care to cover or otherwise protect the roof during its performance of the Work; (iv) damage to any other portion of the property caused by inclement weather (including without limitation: rain, fire, tornado, windstorm) or any other peril normally covered by the standard policies of insurance; (v) any incidental or consequential damage to the Property including, but not limited to, drive-way cracks, loose walls or ceiling hangings; and any damage due to fungus, mold, mildew or air quality conditions; (vi) any damage (whether personal injury or property damage) to any party or property occurring in, under, upon or about the Property; or (vii) any failure of performance of the part of Contractor due to strikes or other labor disputes, fire, weather, inability to obtain materials from usual sources, or any other circumstances or conditions beyond the reasonable control of Contractor. OWNER AGREES THAT THE MAXIMUM LIABILITY OF CONTRACTOR TO OWNER SHALL BE AN AMOUNT EQUAL TO THE LESSER OF THE CONTRACT AMOUNT OR THOSE AMOUNTS ACTUALLY RECEIVED BY CONTRACTOR FROM OWNER PURSUANT TO THIS AGREEMENT. Contractor is not liable for HVAC or gas lines. Contractor is not liable for leaks caused by solar panels. <em>Page 2 of 2 [Updated January 2024]</em></p>
+      <p style="margin:0 0 7px;"><strong>11. Delivery of Material.</strong> Owner acknowledges that there may be a risk of damage to Owner&rsquo;s driveway caused by delivery of construction materials. Owner hereby waives, releases and otherwise holds harmless Contractor, its subcontractors and suppliers from and against liability for any breaks, cracks or other damage to Owner&rsquo;s driveway resulting from delivery of construction materials to Property. Contractor is not liable for any damage done to HVAC or gas lines. If you have read this far, congratulations, please notify your representative and we will have a small gift for you upon signing.</p>
+    </div>
+    <!-- Texas required clauses - always present -->
+    <div style="margin-top:14px; background:#fef9ee; border:1px solid #f59e0b; border-radius:8px; padding:12px 14px; font-size:9.5px; color:#444; line-height:1.55;">
+      <strong style="color:#92400e; font-size:10px;">THREE-DAY RIGHT OF RESCISSION (Texas Law — Required Notice)</strong><br>
+      I HAVE HEREBY BEEN NOTIFIED THAT I MAY CANCEL THIS AGREEMENT AT ANY TIME PRIOR TO MIDNIGHT OF THE THIRD BUSINESS DAY AFTER THE DATE OF THIS AGREEMENT. To cancel, provide written notice to Trophy Roofing &amp; Construction at info@trophyroofingdfw.com or 11975 Cleveland Gibbs Rd. Suite 110, Roanoke, TX 76262. If the customer cancels after materials have been ordered, the customer is responsible for a 20% restocking fee on all ordered materials.
+    </div>
+
+    <!-- Insurance clause - shown on insurance jobs -->
+    <div id="print-ins-clause" style="margin-top:10px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:12px 14px; font-size:9.5px; color:#444; line-height:1.55;">
+      <strong style="color:#0c4a6e; font-size:10px;">INSURANCE CLAIM TERMS</strong><br>
+      This Agreement is contingent upon approval of the insurance claim by Customer&rsquo;s insurance company. Trophy Roofing &amp; Construction will perform the work in accordance with the insurance company&rsquo;s approved damage and work scope.<br><br>
+      <strong>Customer&rsquo;s out-of-pocket expense shall not exceed their applicable deductible, provided the insurance policy releases full Replacement Cost Value (RCV).</strong> If the policy pays Actual Cash Value (ACV) only and depreciation is not released to the Customer, Trophy Roofing &amp; Construction is not obligated to perform the work at the deductible-only price and reserves the right to re-price the project or cancel this Agreement without penalty to either party.<br><br>
+      In the rare circumstance that the insurance company&rsquo;s approved RCV is insufficient to cover the actual cost of the work at Trophy&rsquo;s standard rates, Trophy Roofing &amp; Construction reserves the right to respectfully decline to perform the work. In such cases, Trophy will notify the Customer promptly and assist in exploring available options, and this Agreement shall be cancelled without penalty to either party.<br><br>
+      <strong>Supplements:</strong> In situations where supplements for additional work are necessary outside of the original approved scope (e.g., additional layers, mismeasurements, code upgrades), Trophy will seek approval from the insurance company. Customer authorizes Trophy to communicate directly with the insurance company and adjuster on their behalf.<br><br>
+      <strong style="color:#991b1b;">Texas Deductible Law Disclosure (Required by Texas Law):</strong> Texas law requires a person insured under a property insurance policy to pay any deductible applicable to a claim made under the policy. It is a violation of Texas law for a contractor paid wholly or partly from insurance proceeds to knowingly allow the insured to fail to pay, or to assist the insured&rsquo;s failure to pay, the applicable insurance deductible. See Texas Business &amp; Commerce Code &sect;27.02.
+    </div>
+
+    <!-- E-Signature Block -->
+    <div style="margin-top:16px; background:#f8f9fa; border:1px solid #dee2e6; border-radius:8px; padding:14px;">
+      <div style="font-size:11px; font-weight:700; color:#1a3a6a; margin-bottom:8px;">ELECTRONIC SIGNATURE — BINDING AGREEMENT</div>
+      <div style="font-size:10px; color:#444; margin-bottom:10px; line-height:1.55;">By signing below, I confirm that I have read, understand, and agree to all terms and conditions of this Agreement, including those on the reverse side. I acknowledge that this electronic signature is legally binding under the Texas Uniform Electronic Transactions Act (UETA) and has the same legal effect as a handwritten signature.</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+        <div>
+          <div style="font-size:10px; color:#666; margin-bottom:4px;">Customer Printed Name</div>
+          <div id="print-esig-name" style="border-bottom:2px solid #333; min-height:28px; font-size:16px; font-style:italic; color:#1a3a6a; padding-bottom:2px; font-family:Georgia,serif;"></div>
+        </div>
+        <div>
+          <div style="font-size:10px; color:#666; margin-bottom:4px;">Date Signed</div>
+          <div id="print-esig-date" style="border-bottom:2px solid #333; min-height:28px; font-size:14px; color:#333; padding-bottom:2px;"></div>
+        </div>
+      </div>
+      <div style="margin-top:10px;">
+        <div style="font-size:10px; color:#666; margin-bottom:4px;">Trophy Roofing &amp; Construction Representative</div>
+        <div style="border-bottom:2px solid #333; min-height:28px;"></div>
+      </div>
+    </div>
+
+    <div style="margin-top:10px; display:flex; justify-content:flex-end;">
+      <div style="font-size:10px; color:#666;">info@trophyroofingdfw.com</div>
+    </div>
+  </div>
+
+    <!-- Terms & Conditions Page -->
   <div id="pq-tc-page" style="page-break-before:always; margin:0; padding:32px 40px; font-family:Arial, sans-serif; font-size:10.5px; color:#222; line-height:1.55;">
     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid #1a3a6a; padding-bottom:12px; margin-bottom:16px;">
       <div>
@@ -813,6 +921,8 @@ let currentTier = 'good';
 let currentCommType = 'company';
 let jobOpts = { twostory: false, extrafelt: false, zridge: false };
 let additionalItems = [];
+let customMaterialItems = [];
+let customLaborItems = [];
 let quoteHistory = JSON.parse(localStorage.getItem('rqp_history') || '[]');
 let currentContractPrice = 0;
 
@@ -962,10 +1072,16 @@ function recalc() {
   const grossProfit = contractPrice - hardCost - addlTotal;
   const actualMargin = contractPrice > 0 ? ((grossProfit / contractPrice) * 100) : 0;
 
-  // Update margin display
+  // Update margin display - show actual margin on roofing portion
+  const roofingMargin = baseContract > 0 ? ((baseContract - hardCost) / baseContract * 100) : 0;
   const marginEl = document.getElementById('marginPct');
-  marginEl.textContent = actualMargin.toFixed(1) + '%';
-  marginEl.className = 'margin-pct ' + (actualMargin >= 28 ? 'good' : actualMargin >= 20 ? 'warn' : 'danger');
+  marginEl.textContent = roofingMargin.toFixed(1) + '%';
+  marginEl.className = 'margin-pct ' + (roofingMargin >= 28 ? 'good' : roofingMargin >= 20 ? 'warn' : 'danger');
+  // Sync input to actual margin
+  const marginInputEl = document.getElementById('marginInput');
+  if (marginInputEl && document.activeElement !== marginInputEl) {
+    marginInputEl.value = sliderVal;
+  }
 
   document.getElementById('hardCostDisplay').textContent = fmtC(hardCost + addlTotal);
   document.getElementById('grossProfitDisplay').textContent = fmtC(grossProfit);
@@ -1400,6 +1516,8 @@ function saveQuote() {
     phone: document.getElementById('customerPhone').value || '',
     email: document.getElementById('customerEmail').value || '',
     rep: document.getElementById('repName').value || '',
+    ccamProjectId: ccamProjectId,
+    ccamProjectUrl: ccamProjectUrl,
     isInsurance: document.getElementById('insuranceToggle').checked,
     insurance: document.getElementById('insuranceToggle').checked ? {
       company: document.getElementById('insCompany').value,
@@ -1416,6 +1534,8 @@ function saveQuote() {
     tier: currentTier,
     measurements: currentMeasurements,
     additionalItems: [...additionalItems],
+    customMaterialItems: [...customMaterialItems],
+    customLaborItems: [...customLaborItems],
     jobOpts: {...jobOpts},
     commType: currentCommType,
     sliderVal: document.getElementById('marginSlider').value,
@@ -1451,9 +1571,25 @@ function loadHistoryQuote(id) {
   if (!q) return;
   currentMeasurements = q.measurements;
   additionalItems = q.additionalItems || [];
+  customMaterialItems = q.customMaterialItems || [];
+  renderCustomMaterials();
+  customLaborItems = q.customLaborItems || [];
+  renderCustomLabor();
   jobOpts = q.jobOpts || { steep: false, twostory: false, extrafelt: false, zridge: false };
   currentCommType = q.commType || 'company';
   currentTier = q.tier || 'good';
+  ccamProjectId = q.ccamProjectId || null;
+  ccamProjectUrl = q.ccamProjectUrl || null;
+  if (ccamProjectId) {
+    document.getElementById('ccamStatus').textContent = '✅ Linked';
+    document.getElementById('ccamStatus').style.color = 'var(--green)';
+    document.getElementById('ccamLinked').style.display = 'block';
+    document.getElementById('ccamOpenBtn').disabled = false;
+    document.getElementById('ccamOpenBtn').style.color = 'var(--accent2)';
+    document.getElementById('ccamOpenBtn').style.borderColor = 'var(--accent2)';
+    document.getElementById('ccamCreateBtn').textContent = '✅ Project Linked';
+    loadCCamPhotos();
+  }
   document.getElementById('customerName').value = q.customer;
   document.getElementById('jobAddress').value = q.address;
   document.getElementById('customerPhone').value = q.phone || '';
@@ -1607,11 +1743,121 @@ function renderHardCosts() {
           <td style="padding:4px 8px; text-align:right; font-family:monospace; color:var(--green);">${t}</td>
         </tr>`).join('')}
         <tr style="border-top:2px solid var(--border);">
-          <td colspan="3" style="padding:6px 8px; font-weight:700; color:var(--text);">TOTAL LABOR</td>
+          <td colspan="3" style="padding:6px 8px; font-weight:700; color:var(--text);">Base Labor Total</td>
           <td style="padding:6px 8px; text-align:right; font-weight:800; font-family:monospace; color:var(--yellow);">${fmtC(laborTotal - 165)}</td>
         </tr>
+        ${customLaborItems.length > 0 ? `
+        <tr><td colspan="4" style="padding:4px 8px; font-size:10px; color:var(--accent); font-weight:700; background:#07101a; border-top:1px solid var(--border);">ADDITIONAL LABOR ITEMS</td></tr>
+        ${customLaborItems.map(i => `
+          <tr style="border-bottom:1px solid #0d1f30;">
+            <td style="padding:4px 8px; color:var(--text);">${i.desc || '(no description)'}</td>
+            <td style="padding:4px 8px; text-align:right; color:var(--muted);">${i.qty}</td>
+            <td style="padding:4px 8px; text-align:right; color:var(--muted);">${i.unit}</td>
+            <td style="padding:4px 8px; text-align:right; font-family:monospace; color:var(--green);">${fmtC(i.cost)}</td>
+          </tr>`).join('')}
+        <tr style="border-top:1px solid var(--border);">
+          <td colspan="3" style="padding:6px 8px; font-weight:700; color:var(--text);">Additional Labor Total</td>
+          <td style="padding:6px 8px; text-align:right; font-weight:800; font-family:monospace; color:var(--accent);">${fmtC(customLaborItems.reduce((s,i)=>s+i.cost,0))}</td>
+        </tr>
+        <tr style="border-top:2px solid var(--accent);">
+          <td colspan="3" style="padding:6px 8px; font-weight:900; color:var(--text); font-size:13px;">TOTAL INVOICE</td>
+          <td style="padding:6px 8px; text-align:right; font-weight:900; font-family:monospace; color:var(--yellow); font-size:13px;">${fmtC((laborTotal - 165) + customLaborItems.reduce((s,i)=>s+i.cost,0))}</td>
+        </tr>` : ''}
       </tbody>
     </table>`;
+}
+
+function addCustomMaterial() {
+  const id = Date.now();
+  customMaterialItems.push({ id, desc: '', qty: '', unit: '', cost: 0 });
+  renderCustomMaterials();
+}
+
+function removeCustomMaterial(id) {
+  customMaterialItems = customMaterialItems.filter(i => i.id !== id);
+  renderCustomMaterials();
+  renderHardCosts();
+}
+
+function updateCustomMaterial(id, field, val) {
+  const item = customMaterialItems.find(i => i.id === id);
+  if (item) {
+    item[field] = field === 'cost' ? (parseFloat(val) || 0) : val;
+    renderHardCosts();
+  }
+}
+
+function renderCustomMaterials() {
+  const el = document.getElementById('customMaterialList');
+  if (!el) return;
+  if (customMaterialItems.length === 0) {
+    el.innerHTML = '';
+    return;
+  }
+  el.innerHTML = customMaterialItems.map(item => `
+    <div style="display:grid; grid-template-columns:1fr 80px 80px 90px 30px; gap:4px; padding:5px 14px; border-bottom:1px solid #0d1f30; align-items:center;">
+      <input value="${item.desc}" placeholder="Description (e.g. Pipe Jack 3-in)" 
+        oninput="updateCustomMaterial(${item.id},'desc',this.value)"
+        style="background:#060d18; border:1px solid var(--border); border-radius:4px; color:var(--text); padding:4px 6px; font-size:12px; font-family:inherit;">
+      <input value="${item.qty}" placeholder="Qty" 
+        oninput="updateCustomMaterial(${item.id},'qty',this.value)"
+        style="background:#060d18; border:1px solid var(--border); border-radius:4px; color:var(--text); padding:4px 6px; font-size:12px; font-family:inherit; text-align:center;">
+      <input value="${item.unit}" placeholder="Unit" 
+        oninput="updateCustomMaterial(${item.id},'unit',this.value)"
+        style="background:#060d18; border:1px solid var(--border); border-radius:4px; color:var(--text); padding:4px 6px; font-size:12px; font-family:inherit; text-align:center;">
+      <input type="number" value="${item.cost || ''}" placeholder="$0.00" 
+        oninput="updateCustomMaterial(${item.id},'cost',this.value)"
+        style="background:#060d18; border:1px solid var(--border); border-radius:4px; color:var(--text); padding:4px 6px; font-size:12px; font-family:inherit; text-align:right;">
+      <button onclick="removeCustomMaterial(${item.id})" style="background:none; border:none; color:var(--red); font-size:16px; cursor:pointer; padding:0; line-height:1;">&#x2715;</button>
+    </div>`).join('');
+}
+
+function addCustomLabor() {
+  const id = Date.now();
+  customLaborItems.push({ id, desc: '', qty: '', unit: '', cost: 0 });
+  renderCustomLabor();
+}
+
+function removeCustomLabor(id) {
+  customLaborItems = customLaborItems.filter(i => i.id !== id);
+  renderCustomLabor();
+  updateSubInvoiceTotal();
+}
+
+function updateCustomLabor(id, field, val) {
+  const item = customLaborItems.find(i => i.id === id);
+  if (item) {
+    item[field] = field === 'cost' ? (parseFloat(val) || 0) : val;
+    updateSubInvoiceTotal();
+  }
+}
+
+function updateSubInvoiceTotal() {
+  // Re-render just the sub invoice total if the panel is open
+  const el = document.getElementById('hardCostDetail');
+  if (el && el.style.display !== 'none') renderHardCosts();
+}
+
+function renderCustomLabor() {
+  const el = document.getElementById('customLaborList');
+  if (!el) return;
+  if (customLaborItems.length === 0) { el.innerHTML = ''; return; }
+  el.innerHTML = customLaborItems.map(item => `
+    <div style="display:grid; grid-template-columns:1fr 70px 70px 90px 30px; gap:4px; padding:4px 0; align-items:center;">
+      <input value="${item.desc}" placeholder="e.g. OSB replace, skylight flash, chimney" 
+        oninput="updateCustomLabor(${item.id},'desc',this.value)"
+        style="background:#060d18; border:1px solid var(--border); border-radius:4px; color:var(--text); padding:4px 6px; font-size:12px; font-family:inherit;">
+      <input value="${item.qty}" placeholder="Qty" 
+        oninput="updateCustomLabor(${item.id},'qty',this.value)"
+        style="background:#060d18; border:1px solid var(--border); border-radius:4px; color:var(--text); padding:4px 6px; font-size:12px; font-family:inherit; text-align:center;">
+      <input value="${item.unit}" placeholder="Unit" 
+        oninput="updateCustomLabor(${item.id},'unit',this.value)"
+        style="background:#060d18; border:1px solid var(--border); border-radius:4px; color:var(--text); padding:4px 6px; font-size:12px; font-family:inherit; text-align:center;">
+      <input type="number" value="${item.cost || ''}" placeholder="$0.00" 
+        oninput="updateCustomLabor(${item.id},'cost',this.value)"
+        style="background:#060d18; border:1px solid var(--border); border-radius:4px; color:var(--text); padding:4px 6px; font-size:12px; font-family:inherit; text-align:right;">
+      <button onclick="removeCustomLabor(${item.id})" style="background:none; border:none; color:var(--red); font-size:16px; cursor:pointer; padding:0;">&#x2715;</button>
+    </div>`).join('');
 }
 
 function shareSubInvoice() {
@@ -1620,7 +1866,14 @@ function shareSubInvoice() {
   const customer = document.getElementById('customerName').value || 'Homeowner';
   const address = document.getElementById('jobAddress').value || m.address || '';
   const table = document.getElementById('subInvoiceTable');
-  const text = 'TROPHY ROOFING & CONSTRUCTION\nSUB LABOR INVOICE\n\nJob: ' + customer + '\nAddress: ' + address + '\nDate: ' + new Date().toLocaleDateString() + '\n\n' + (table ? table.innerText : '');
+  const customLaborText = customLaborItems.length > 0
+    ? '\n\nADDITIONAL LABOR:\n' + customLaborItems.map(i => i.desc + ' | ' + i.qty + ' ' + i.unit + ' | ' + fmtC(i.cost)).join('\n')
+      + '\nAdditional Labor Total: ' + fmtC(customLaborItems.reduce((s,i)=>s+i.cost,0))
+    : '';
+  const customMatText = customMaterialItems.length > 0 
+    ? '\n\nADDITIONAL MATERIALS:\n' + customMaterialItems.map(i => i.desc + ' | ' + i.qty + ' ' + i.unit + ' | ' + fmtC(i.cost)).join('\n')
+    : '';
+  const text = 'TROPHY ROOFING & CONSTRUCTION\nSUB LABOR INVOICE\n\nJob: ' + customer + '\nAddress: ' + address + '\nDate: ' + new Date().toLocaleDateString() + '\n\n' + (table ? table.innerText : '') + customLaborText + customMatText;
   if (navigator.share) {
     navigator.share({ title: 'Sub Labor Invoice', text });
   } else {
@@ -1630,6 +1883,108 @@ function shareSubInvoice() {
 
 function screenshotSubInvoice() {
   alert('To screenshot: press and hold the sub invoice section, then use your phone screenshot button (side button + volume up on iPhone).');
+}
+
+// ============================================================
+// COMPANYCAM INTEGRATION
+// ============================================================
+let ccamProjectId = null;
+let ccamProjectUrl = null;
+
+function getCCamToken() {
+  return localStorage.getItem('rqp_ccam') || '';
+}
+
+async function createCCamProject() {
+  const token = getCCamToken();
+  if (!token) {
+    alert('Please add your CompanyCam API token in the Team tab first.');
+    return;
+  }
+  const customer = document.getElementById('customerName').value;
+  const address = document.getElementById('jobAddress').value || (currentMeasurements && currentMeasurements.address) || '';
+  if (!address && !customer) {
+    alert('Please enter a customer name or address first.');
+    return;
+  }
+
+  const btn = document.getElementById('ccamCreateBtn');
+  btn.textContent = 'Creating...';
+  btn.disabled = true;
+
+  try {
+    const response = await fetch('https://api.companycam.com/v2/projects', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        project: {
+          name: (customer || 'Job') + (address ? ' — ' + address : ''),
+          address: {
+            street_address_1: address.split(',')[0] || address,
+            city: address.split(',')[1] ? address.split(',')[1].trim() : '',
+            state: address.split(',')[2] ? address.split(',')[2].trim().split(' ')[0] : 'TX',
+            postal_code: address.match(/\d{5}/) ? address.match(/\d{5}/)[0] : ''
+          }
+        }
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error('CompanyCam error ' + response.status + ': ' + JSON.stringify(err));
+    }
+
+    const data = await response.json();
+    ccamProjectId = data.id || data.project?.id;
+    ccamProjectUrl = data.feature_url || data.project?.feature_url || ('https://app.companycam.com/projects/' + ccamProjectId);
+
+    // Update UI
+    document.getElementById('ccamStatus').textContent = '✅ Linked';
+    document.getElementById('ccamStatus').style.color = 'var(--green)';
+    document.getElementById('ccamLinked').style.display = 'block';
+    document.getElementById('ccamOpenBtn').disabled = false;
+    document.getElementById('ccamOpenBtn').style.color = 'var(--accent2)';
+    document.getElementById('ccamOpenBtn').style.borderColor = 'var(--accent2)';
+    btn.textContent = '✅ Project Created';
+
+    // Load photos
+    loadCCamPhotos();
+
+  } catch(err) {
+    btn.textContent = '⚠ Error — Retry';
+    btn.disabled = false;
+    alert('CompanyCam error: ' + err.message);
+  }
+}
+
+async function loadCCamPhotos() {
+  const token = getCCamToken();
+  if (!token || !ccamProjectId) return;
+  try {
+    const response = await fetch('https://api.companycam.com/v2/projects/' + ccamProjectId + '/photos?per_page=6', {
+      headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' }
+    });
+    if (!response.ok) return;
+    const data = await response.json();
+    const photos = data.photos || data || [];
+    const preview = document.getElementById('ccamPhotosPreview');
+    if (photos.length === 0) {
+      preview.innerHTML = '<div style="font-size:11px; color:var(--muted);">No photos yet — open CompanyCam to add photos.</div>';
+    } else {
+      preview.innerHTML = photos.slice(0,6).map(p => {
+        const url = p.uris?.find(u => u.type === 'thumbnail')?.uri || p.uris?.[0]?.uri || '';
+        return url ? `<img src="${url}" style="width:60px; height:60px; object-fit:cover; border-radius:4px; border:1px solid var(--border);">` : '';
+      }).join('');
+    }
+  } catch(e) { console.log('Photo load error:', e); }
+}
+
+function openCCamProject() {
+  if (ccamProjectUrl) window.open(ccamProjectUrl, '_blank');
 }
 
 function toggleInsurance() {
@@ -1671,6 +2026,16 @@ function resetToUpload() {
   ['goodBrand','betterBrand','bestBrand'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
   document.getElementById('repName').value = '';
   document.getElementById('followUpCheck').checked = false;
+  ccamProjectId = null;
+  ccamProjectUrl = null;
+  const ccamStatus = document.getElementById('ccamStatus');
+  if (ccamStatus) { ccamStatus.textContent = 'Not linked'; ccamStatus.style.color = 'var(--muted)'; }
+  const ccamLinked = document.getElementById('ccamLinked');
+  if (ccamLinked) ccamLinked.style.display = 'none';
+  const ccamOpenBtn = document.getElementById('ccamOpenBtn');
+  if (ccamOpenBtn) { ccamOpenBtn.disabled = true; ccamOpenBtn.style.color = 'var(--muted)'; ccamOpenBtn.style.borderColor = 'var(--border)'; }
+  const ccamCreateBtn = document.getElementById('ccamCreateBtn');
+  if (ccamCreateBtn) { ccamCreateBtn.textContent = '⊕ Create CC Project'; ccamCreateBtn.disabled = false; }
   document.getElementById('insuranceToggle').checked = false;
   document.getElementById('eSignName').value = '';
   document.getElementById('eSignDate').value = '';
@@ -1705,6 +2070,8 @@ function loadSettings() {
   if (s.licenseNo) document.getElementById('licenseNo').value = s.licenseNo;
   const k = getApiKey();
   if (k) document.getElementById('apiKeyDisplay').value = k;
+  const cc = localStorage.getItem('rqp_ccam');
+  if (cc) { const el = document.getElementById('ccamTokenDisplay'); if(el) el.value = cc; }
 }
 
 // ============================================================
