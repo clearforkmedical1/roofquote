@@ -96,6 +96,13 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
 .section-title { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
 .section-sub { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
 .safe-bottom { height: env(safe-area-inset-bottom, 16px); }
+/* Signature Pad */
+#sigPadOverlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; background:#020817; z-index:9999; flex-direction:column; overflow:hidden; }
+#sigPadOverlay.active { display:flex; }
+#sigPadContainer { background:var(--surface); margin:auto; border-radius:16px; overflow:hidden; width:95%; max-width:680px; display:flex; flex-direction:column; max-height:90vh; }
+#sigPadHeader { padding:16px 20px; background:#070f1c; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); }
+#sigCanvas { background:white; touch-action:none; cursor:crosshair; width:100%; display:block; }
+#sigPadFooter { padding:14px 20px; display:flex; gap:10px; background:#070f1c; border-top:1px solid var(--border); }
 .additional-item { display: flex; gap: 8px; align-items: center; padding: 6px 14px; border-bottom: 1px solid #0d1f30; }
 .additional-item input { background: #060d18; border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 5px 8px; font-size: 13px; font-family: inherit; }
 .additional-item .desc-input { flex: 1; }
@@ -357,6 +364,30 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
           <button onclick="toggleHardCosts()" id="hardCostToggle" style="background:none; border:none; color:#4ade80; font-size:11px; cursor:pointer;">Show &#x25BC;</button>
         </div>
         <div id="hardCostDetail" style="display:none;">
+          <!-- Material Order Details -->
+          <div style="padding:10px 14px; border-bottom:1px solid var(--border); background:#07101a;">
+            <div style="font-size:11px; font-weight:700; color:#4ade80; margin-bottom:8px;">&#x1F4E6; Material Order Details</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
+              <div>
+                <div class="field-label">Shingle Brand & Color</div>
+                <input class="field-input" id="shingleBrandColor" placeholder="e.g. Atlas Pinnacle — Weathered Wood" style="font-size:12px; margin-top:3px;">
+              </div>
+              <div>
+                <div class="field-label">Ridge Cap Brand & Color</div>
+                <input class="field-input" id="ridgeBrandColor" placeholder="e.g. GAF Z-Ridge — Charcoal" style="font-size:12px; margin-top:3px;">
+              </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+              <div>
+                <div class="field-label">Requested Delivery Date</div>
+                <input class="field-input" id="deliveryDate" type="date" style="font-size:12px; margin-top:3px;">
+              </div>
+              <div>
+                <div class="field-label">Delivery Notes</div>
+                <input class="field-input" id="deliveryNotes" placeholder="e.g. Leave in driveway" style="font-size:12px; margin-top:3px;">
+              </div>
+            </div>
+          </div>
           <div id="hardCostTable"></div>
           <div style="padding:10px 14px; border-top:1px solid var(--border);">
             <div style="display:flex; justify-content:space-between; font-size:12px; color:#94a3b8; padding:3px 0;">
@@ -377,6 +408,12 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
             </div>
             <div id="customMaterialList"></div>
             <div style="padding:4px 14px 8px; font-size:10px; color:var(--muted);">Add pipe jacks, vents, OSB, skylights, or anything not in the GAF report</div>
+          </div>
+
+          <!-- Material Order Buttons -->
+          <div style="padding:8px 14px; border-top:1px solid var(--border); display:flex; gap:8px;">
+            <button onclick="shareMaterialOrder()" style="flex:1; background:var(--surface2); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:8px; font-size:12px; font-family:inherit; cursor:pointer;">&#x1F4E4; Share Material Order</button>
+            <button onclick="printMaterialOrder()" style="flex:1; background:var(--surface2); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:8px; font-size:12px; font-family:inherit; cursor:pointer;">&#x1F5A8; Print Order Sheet</button>
           </div>
 
           <!-- Sub invoice section -->
@@ -417,7 +454,13 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
         <button class="btn-action" onclick="printQuote()" style="background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#060d18">&#x1F5A8; Print Quote</button>
         <button class="btn-action" onclick="shareQuote()" style="background:var(--surface2); color:var(--text); border:1px solid var(--border)">&#x1F4E4; Share</button>
       </div>
-      <button class="btn-primary" onclick="saveQuote()" style="margin-bottom:6px">&#x1F4BE; Save to History</button>
+      <div style="display:flex; gap:8px; margin-bottom:6px;">
+        <button onclick="openSigPad()" style="flex:1; background:linear-gradient(135deg,#7c3aed,#4f46e5); border:none; color:white; border-radius:10px; padding:14px; font-size:14px; font-weight:700; font-family:inherit; cursor:pointer;">&#x270F; Sign Contract</button>
+        <button class="btn-primary" onclick="saveQuote()" style="flex:1; margin-top:0;">&#x1F4BE; Save to History</button>
+      </div>
+      <div id="signedBadge" style="display:none; background:#0a2a1a; border:1px solid #4ade80; border-radius:8px; padding:10px 14px; font-size:12px; color:#4ade80; margin-bottom:6px; display:none;">
+        &#x2705; Contract signed by <span id="signedByName"></span> on <span id="signedOnDate"></span>
+      </div>
       <!-- CompanyCam Integration -->
       <div class="card" style="margin-top:10px; padding:14px; border-color:#1e3a5f;" id="ccamCard">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
@@ -519,6 +562,44 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
 
 </div>
 <div class="safe-bottom"></div>
+
+<!-- SIGNATURE PAD OVERLAY -->
+<div id="sigPadOverlay">
+  <div id="sigPadContainer">
+    <div id="sigPadHeader">
+      <div>
+        <div style="font-size:16px; font-weight:700; color:var(--text);">&#x270D; Customer Signature</div>
+        <div style="font-size:11px; color:var(--muted); margin-top:2px;" id="sigPadSubtitle">Sign below to accept the roofing agreement</div>
+      </div>
+      <button onclick="closeSigPad()" style="background:none; border:1px solid var(--border); color:var(--muted); border-radius:6px; padding:6px 12px; font-size:12px; cursor:pointer; font-family:inherit;">Cancel</button>
+    </div>
+    <!-- Clean customer summary - no internal data visible -->
+    <div style="padding:12px 20px; background:#0a1628; border-bottom:1px solid var(--border);">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px;">
+        <div style="background:var(--surface); border-radius:6px; padding:8px 12px;">
+          <div style="font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em;">Customer</div>
+          <div style="font-size:13px; font-weight:700;" id="sigCustomerName">—</div>
+        </div>
+        <div style="background:var(--surface); border-radius:6px; padding:8px 12px;">
+          <div style="font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em;">Contract Total</div>
+          <div style="font-size:13px; font-weight:700; color:var(--accent);" id="sigContractAmt">—</div>
+        </div>
+      </div>
+      <div style="font-size:11px; color:var(--muted); line-height:1.5; background:var(--surface); border-radius:6px; padding:8px 12px;">
+        By signing below, I confirm I have read and agree to all terms and conditions of the Trophy Roofing &amp; Construction Agreement. This constitutes a legally binding electronic signature under Texas UETA.
+      </div>
+    </div>
+    <div style="position:relative; background:white;">
+      <canvas id="sigCanvas"></canvas>
+      <div style="position:absolute; bottom:12px; left:50%; transform:translateX(-50%); font-size:12px; color:#ccc; pointer-events:none; white-space:nowrap;">Sign here with your finger</div>
+      <div style="position:absolute; bottom:8px; left:20px; right:20px; border-bottom:1px solid #ddd; pointer-events:none;"></div>
+    </div>
+    <div id="sigPadFooter">
+      <button onclick="clearSigPad()" style="background:var(--surface2); border:1px solid var(--border); color:var(--muted); border-radius:8px; padding:10px 20px; font-size:13px; cursor:pointer; font-family:inherit;">Clear</button>
+      <button onclick="acceptSignature()" style="flex:1; background:linear-gradient(135deg,var(--accent),var(--accent2)); border:none; color:#060d18; border-radius:8px; padding:10px 20px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit;">&#x2705; Accept & Sign Contract</button>
+    </div>
+  </div>
+</div>
 
 <!-- PRINT TEMPLATE (hidden) -->
 <div id="printQuote">
@@ -712,7 +793,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
   </div>
 
   <!-- Terms & Conditions Page -->
-  <div id="pq-tc-page" style="page-break-before:always; margin:0; padding:32px 40px; font-family:Arial, sans-serif; font-size:10.5px; color:#222; line-height:1.55;">
+  <div id="pq-tc-page" style="page-break-before:always; margin:0; padding:24px 36px; font-family:Arial, sans-serif; font-size:10px; color:#222; line-height:1.5;">
     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid #1a3a6a; padding-bottom:12px; margin-bottom:16px;">
       <div>
         <div style="font-family:Arial Black,Arial; font-weight:900; font-size:20px; color:#1a3a6a; line-height:1.2;">TROPHY ROOFING</div>
@@ -724,7 +805,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
         <div style="font-size:11px; color:#444;">info@trophyroofingdfw.com</div>
       </div>
     </div>
-    <div style="columns:2; column-gap:22px; font-size:10px; line-height:1.55; color:#222; orphans:3; widows:3;">
+    <div style="columns:2; column-gap:18px; font-size:9.5px; line-height:1.5; color:#222; orphans:3; widows:3;">
       <p style="margin:0 0 7px;"><strong>1.</strong> This Agreement (the &ldquo;Contract&rdquo; or &ldquo;Agreement&rdquo;) includes all of the terms, covenants, and/or conditions set forth herein, contains all of the covenants and agreements between the parties with respect to the subject matter hereof and supersedes any and all other prior agreements, between Owner and Contractor. Contractor shall have no obligation to commence or continue the Work until it has received: i) a fully executed copy of this Agreement; ii) construction permits (if applicable); and iii) verification of funding for the Work (if requested) and as provided herein. As used herein, the term &ldquo;Owner&rdquo; shall mean that entity with whom Contractor has executed the Agreement. As a condition precedent to the Contractor&rsquo;s obligation to commence or continue the Work, upon written request of the Contractor, Owner will provide evidence relating to the Owner&rsquo;s financial ability to pay for the Work and/or any policies of insurance applicable to the Work. Such evidence will be provided within seven (7) days of Contractor&rsquo;s request.</p>
       <p style="margin:0 0 7px;"><strong>2.</strong> The Owner represents and warrants that it has the authority to enter into this Agreement and has secured all necessary access, permissions, easements and permits from the property owner(s) and/or the appropriate governmental authorities that are necessary and required for the Contractor to perform the Work. If required for the Work, the Owner will retain duly licensed and qualified architects, engineers or other design professionals (&ldquo;Owner&rsquo;s Consultants&rdquo;) to provide services related to the Work.</p>
       <p style="margin:0 0 7px;"><strong>3.</strong> All Work shall be performed by the Contractor in a good and workmanlike manner and all materials furnished and used in connection therewith shall be of good quality unless otherwise directed by the Owner and/or the Owner&rsquo;s Consultants.</p>
@@ -738,13 +819,13 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
       <p style="margin:0 0 7px;"><strong>11. Delivery of Material.</strong> Owner acknowledges that there may be a risk of damage to Owner&rsquo;s driveway caused by delivery of construction materials. Owner hereby waives, releases and otherwise holds harmless Contractor, its subcontractors and suppliers from and against liability for any breaks, cracks or other damage to Owner&rsquo;s driveway resulting from delivery of construction materials to Property. Contractor is not liable for any damage done to HVAC or gas lines. If you have read this far, congratulations, please notify your representative and we will have a small gift for you upon signing.</p>
     </div>
     <!-- Texas required clauses - always present -->
-    <div style="margin-top:14px; background:#fef9ee; border:1px solid #f59e0b; border-radius:8px; padding:12px 14px; font-size:9.5px; color:#444; line-height:1.55;">
-      <strong style="color:#92400e; font-size:10px;">THREE-DAY RIGHT OF RESCISSION (Texas Law — Required Notice)</strong><br>
+    <div style="margin-top:10px; background:#fef9ee; border:1px solid #f59e0b; border-radius:8px; padding:10px 14px; font-size:9px; color:#444; line-height:1.5; page-break-inside:avoid; break-inside:avoid;">
+      <strong style="color:#92400e; font-size:9.5px;">THREE-DAY RIGHT OF RESCISSION (Texas Law — Required Notice)</strong><br>
       I HAVE HEREBY BEEN NOTIFIED THAT I MAY CANCEL THIS AGREEMENT AT ANY TIME PRIOR TO MIDNIGHT OF THE THIRD BUSINESS DAY AFTER THE DATE OF THIS AGREEMENT. To cancel, provide written notice to Trophy Roofing &amp; Construction at info@trophyroofingdfw.com or 11975 Cleveland Gibbs Rd. Suite 110, Roanoke, TX 76262. If the customer cancels after materials have been ordered, the customer is responsible for a 20% restocking fee on all ordered materials.
     </div>
 
     <!-- Insurance clause - shown on insurance jobs -->
-    <div id="print-ins-clause" style="margin-top:10px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:12px 14px; font-size:9.5px; color:#444; line-height:1.55;">
+    <div id="print-ins-clause" style="margin-top:8px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:8px 12px; font-size:9px; color:#444; line-height:1.5; page-break-inside:avoid; break-inside:avoid;">
       <strong style="color:#0c4a6e; font-size:10px;">INSURANCE CLAIM TERMS</strong><br>
       This Agreement is contingent upon approval of the insurance claim by Customer&rsquo;s insurance company. Trophy Roofing &amp; Construction will perform the work in accordance with the insurance company&rsquo;s approved damage and work scope.<br><br>
       <strong>Customer&rsquo;s out-of-pocket expense shall not exceed their applicable deductible, provided the insurance policy releases full Replacement Cost Value (RCV).</strong> If the policy pays Actual Cash Value (ACV) only and depreciation is not released to the Customer, Trophy Roofing &amp; Construction is not obligated to perform the work at the deductible-only price and reserves the right to re-price the project or cancel this Agreement without penalty to either party.<br><br>
@@ -754,32 +835,29 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
     </div>
 
     <!-- E-Signature Block -->
-    <div style="margin-top:16px; background:#f8f9fa; border:1px solid #dee2e6; border-radius:8px; padding:14px;">
-      <div style="font-size:11px; font-weight:700; color:#1a3a6a; margin-bottom:8px;">ELECTRONIC SIGNATURE — BINDING AGREEMENT</div>
-      <div style="font-size:10px; color:#444; margin-bottom:10px; line-height:1.55;">By signing below, I confirm that I have read, understand, and agree to all terms and conditions of this Agreement, including those on the reverse side. I acknowledge that this electronic signature is legally binding under the Texas Uniform Electronic Transactions Act (UETA) and has the same legal effect as a handwritten signature.</div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+    <div style="margin-top:12px; background:#f8f9fa; border:1px solid #dee2e6; border-radius:8px; padding:12px; page-break-inside:avoid; break-inside:avoid;">
+      <div style="font-size:10px; font-weight:700; color:#1a3a6a; margin-bottom:6px;">ELECTRONIC SIGNATURE — BINDING AGREEMENT</div>
+      <div style="font-size:9.5px; color:#444; margin-bottom:10px; line-height:1.5;">By signing below, I confirm that I have read, understand, and agree to all terms and conditions of this Agreement, including those on the reverse side. I acknowledge that this electronic signature is legally binding under the Texas Uniform Electronic Transactions Act (UETA) and has the same legal effect as a handwritten signature.</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:10px;">
         <div>
-          <div style="font-size:10px; color:#666; margin-bottom:4px;">Customer Printed Name</div>
-          <div id="print-esig-name" style="border-bottom:2px solid #333; min-height:28px; font-size:16px; font-style:italic; color:#1a3a6a; padding-bottom:2px; font-family:Georgia,serif;"></div>
+          <div style="font-size:9px; color:#666; margin-bottom:3px;">Customer Printed Name</div>
+          <div id="print-esig-name" style="border-bottom:2px solid #333; min-height:24px; font-size:15px; font-style:italic; color:#1a3a6a; padding-bottom:2px; font-family:Georgia,serif;"></div>
         </div>
         <div>
-          <div style="font-size:10px; color:#666; margin-bottom:4px;">Date Signed</div>
-          <div id="print-esig-date" style="border-bottom:2px solid #333; min-height:28px; font-size:14px; color:#333; padding-bottom:2px;"></div>
+          <div style="font-size:9px; color:#666; margin-bottom:3px;">Date Signed</div>
+          <div id="print-esig-date" style="border-bottom:2px solid #333; min-height:24px; font-size:13px; color:#333; padding-bottom:2px;"></div>
         </div>
       </div>
-      <div style="margin-top:10px;">
-        <div style="font-size:10px; color:#666; margin-bottom:4px;">Trophy Roofing &amp; Construction Representative</div>
-        <div style="border-bottom:2px solid #333; min-height:28px;"></div>
+      <div>
+        <div style="font-size:9px; color:#666; margin-bottom:3px;">Trophy Roofing &amp; Construction Representative</div>
+        <div style="border-bottom:2px solid #333; min-height:24px;"></div>
       </div>
-    </div>
-
-    <div style="margin-top:10px; display:flex; justify-content:flex-end;">
-      <div style="font-size:10px; color:#666;">info@trophyroofingdfw.com</div>
+      <div style="margin-top:8px; text-align:right; font-size:9px; color:#666;">info@trophyroofingdfw.com</div>
     </div>
   </div>
 
     <!-- Terms & Conditions Page -->
-  <div id="pq-tc-page" style="page-break-before:always; margin:0; padding:32px 40px; font-family:Arial, sans-serif; font-size:10.5px; color:#222; line-height:1.55;">
+  <div id="pq-tc-page" style="page-break-before:always; margin:0; padding:24px 36px; font-family:Arial, sans-serif; font-size:10px; color:#222; line-height:1.5;">
     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid #1a3a6a; padding-bottom:12px; margin-bottom:16px;">
       <div>
         <div style="font-family:Arial Black,Arial; font-weight:900; font-size:20px; color:#1a3a6a; line-height:1.2;">TROPHY ROOFING</div>
@@ -791,7 +869,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
         <div style="font-size:11px; color:#444;">info@trophyroofingdfw.com</div>
       </div>
     </div>
-    <div style="columns:2; column-gap:22px; font-size:10px; line-height:1.55; color:#222; orphans:3; widows:3;">
+    <div style="columns:2; column-gap:18px; font-size:9.5px; line-height:1.5; color:#222; orphans:3; widows:3;">
       <p style="margin:0 0 7px;"><strong>1.</strong> This Agreement (the &ldquo;Contract&rdquo; or &ldquo;Agreement&rdquo;) includes all of the terms, covenants, and/or conditions set forth herein, contains all of the covenants and agreements between the parties with respect to the subject matter hereof and supersedes any and all other prior agreements, between Owner and Contractor. Contractor shall have no obligation to commence or continue the Work until it has received: i) a fully executed copy of this Agreement; ii) construction permits (if applicable); and iii) verification of funding for the Work (if requested) and as provided herein. As used herein, the term &ldquo;Owner&rdquo; shall mean that entity with whom Contractor has executed the Agreement. As a condition precedent to the Contractor&rsquo;s obligation to commence or continue the Work, upon written request of the Contractor, Owner will provide evidence relating to the Owner&rsquo;s financial ability to pay for the Work and/or any policies of insurance applicable to the Work. Such evidence will be provided within seven (7) days of Contractor&rsquo;s request.</p>
       <p style="margin:0 0 7px;"><strong>2.</strong> The Owner represents and warrants that it has the authority to enter into this Agreement and has secured all necessary access, permissions, easements and permits from the property owner(s) and/or the appropriate governmental authorities that are necessary and required for the Contractor to perform the Work. If required for the Work, the Owner will retain duly licensed and qualified architects, engineers or other design professionals (&ldquo;Owner&rsquo;s Consultants&rdquo;) to provide services related to the Work.</p>
       <p style="margin:0 0 7px;"><strong>3.</strong> All Work shall be performed by the Contractor in a good and workmanlike manner and all materials furnished and used in connection therewith shall be of good quality unless otherwise directed by the Owner and/or the Owner&rsquo;s Consultants.</p>
@@ -805,13 +883,13 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
       <p style="margin:0 0 7px;"><strong>11. Delivery of Material.</strong> Owner acknowledges that there may be a risk of damage to Owner&rsquo;s driveway caused by delivery of construction materials. Owner hereby waives, releases and otherwise holds harmless Contractor, its subcontractors and suppliers from and against liability for any breaks, cracks or other damage to Owner&rsquo;s driveway resulting from delivery of construction materials to Property. Contractor is not liable for any damage done to HVAC or gas lines. If you have read this far, congratulations, please notify your representative and we will have a small gift for you upon signing.</p>
     </div>
     <!-- Texas required clauses - always present -->
-    <div style="margin-top:14px; background:#fef9ee; border:1px solid #f59e0b; border-radius:8px; padding:12px 14px; font-size:9.5px; color:#444; line-height:1.55;">
-      <strong style="color:#92400e; font-size:10px;">THREE-DAY RIGHT OF RESCISSION (Texas Law — Required Notice)</strong><br>
+    <div style="margin-top:10px; background:#fef9ee; border:1px solid #f59e0b; border-radius:8px; padding:10px 14px; font-size:9px; color:#444; line-height:1.5; page-break-inside:avoid; break-inside:avoid;">
+      <strong style="color:#92400e; font-size:9.5px;">THREE-DAY RIGHT OF RESCISSION (Texas Law — Required Notice)</strong><br>
       I HAVE HEREBY BEEN NOTIFIED THAT I MAY CANCEL THIS AGREEMENT AT ANY TIME PRIOR TO MIDNIGHT OF THE THIRD BUSINESS DAY AFTER THE DATE OF THIS AGREEMENT. To cancel, provide written notice to Trophy Roofing &amp; Construction at info@trophyroofingdfw.com or 11975 Cleveland Gibbs Rd. Suite 110, Roanoke, TX 76262. If the customer cancels after materials have been ordered, the customer is responsible for a 20% restocking fee on all ordered materials.
     </div>
 
     <!-- Insurance clause - shown on insurance jobs -->
-    <div id="print-ins-clause" style="margin-top:10px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:12px 14px; font-size:9.5px; color:#444; line-height:1.55;">
+    <div id="print-ins-clause" style="margin-top:8px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:8px 12px; font-size:9px; color:#444; line-height:1.5; page-break-inside:avoid; break-inside:avoid;">
       <strong style="color:#0c4a6e; font-size:10px;">INSURANCE CLAIM TERMS</strong><br>
       This Agreement is contingent upon approval of the insurance claim by Customer&rsquo;s insurance company. Trophy Roofing &amp; Construction will perform the work in accordance with the insurance company&rsquo;s approved damage and work scope.<br><br>
       <strong>Customer&rsquo;s out-of-pocket expense shall not exceed their applicable deductible, provided the insurance policy releases full Replacement Cost Value (RCV).</strong> If the policy pays Actual Cash Value (ACV) only and depreciation is not released to the Customer, Trophy Roofing &amp; Construction is not obligated to perform the work at the deductible-only price and reserves the right to re-price the project or cancel this Agreement without penalty to either party.<br><br>
@@ -821,27 +899,24 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
     </div>
 
     <!-- E-Signature Block -->
-    <div style="margin-top:16px; background:#f8f9fa; border:1px solid #dee2e6; border-radius:8px; padding:14px;">
-      <div style="font-size:11px; font-weight:700; color:#1a3a6a; margin-bottom:8px;">ELECTRONIC SIGNATURE — BINDING AGREEMENT</div>
-      <div style="font-size:10px; color:#444; margin-bottom:10px; line-height:1.55;">By signing below, I confirm that I have read, understand, and agree to all terms and conditions of this Agreement, including those on the reverse side. I acknowledge that this electronic signature is legally binding under the Texas Uniform Electronic Transactions Act (UETA) and has the same legal effect as a handwritten signature.</div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+    <div style="margin-top:12px; background:#f8f9fa; border:1px solid #dee2e6; border-radius:8px; padding:12px; page-break-inside:avoid; break-inside:avoid;">
+      <div style="font-size:10px; font-weight:700; color:#1a3a6a; margin-bottom:6px;">ELECTRONIC SIGNATURE — BINDING AGREEMENT</div>
+      <div style="font-size:9.5px; color:#444; margin-bottom:10px; line-height:1.5;">By signing below, I confirm that I have read, understand, and agree to all terms and conditions of this Agreement, including those on the reverse side. I acknowledge that this electronic signature is legally binding under the Texas Uniform Electronic Transactions Act (UETA) and has the same legal effect as a handwritten signature.</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:10px;">
         <div>
-          <div style="font-size:10px; color:#666; margin-bottom:4px;">Customer Printed Name</div>
-          <div id="print-esig-name" style="border-bottom:2px solid #333; min-height:28px; font-size:16px; font-style:italic; color:#1a3a6a; padding-bottom:2px; font-family:Georgia,serif;"></div>
+          <div style="font-size:9px; color:#666; margin-bottom:3px;">Customer Printed Name</div>
+          <div id="print-esig-name" style="border-bottom:2px solid #333; min-height:24px; font-size:15px; font-style:italic; color:#1a3a6a; padding-bottom:2px; font-family:Georgia,serif;"></div>
         </div>
         <div>
-          <div style="font-size:10px; color:#666; margin-bottom:4px;">Date Signed</div>
-          <div id="print-esig-date" style="border-bottom:2px solid #333; min-height:28px; font-size:14px; color:#333; padding-bottom:2px;"></div>
+          <div style="font-size:9px; color:#666; margin-bottom:3px;">Date Signed</div>
+          <div id="print-esig-date" style="border-bottom:2px solid #333; min-height:24px; font-size:13px; color:#333; padding-bottom:2px;"></div>
         </div>
       </div>
-      <div style="margin-top:10px;">
-        <div style="font-size:10px; color:#666; margin-bottom:4px;">Trophy Roofing &amp; Construction Representative</div>
-        <div style="border-bottom:2px solid #333; min-height:28px;"></div>
+      <div>
+        <div style="font-size:9px; color:#666; margin-bottom:3px;">Trophy Roofing &amp; Construction Representative</div>
+        <div style="border-bottom:2px solid #333; min-height:24px;"></div>
       </div>
-    </div>
-
-    <div style="margin-top:10px; display:flex; justify-content:flex-end;">
-      <div style="font-size:10px; color:#666;">info@trophyroofingdfw.com</div>
+      <div style="margin-top:8px; text-align:right; font-size:9px; color:#666;">info@trophyroofingdfw.com</div>
     </div>
   </div>
 
@@ -1408,8 +1483,13 @@ function printQuote() {
   const eSigDate = document.getElementById('eSignDate').value;
   const eSigNameEl = document.getElementById('print-esig-name');
   const eSigDateEl = document.getElementById('print-esig-date');
-  if (eSigNameEl) eSigNameEl.textContent = eSigName || '________________________';
-  if (eSigDateEl) eSigDateEl.textContent = eSigDate ? new Date(eSigDate + 'T12:00').toLocaleDateString('en-US', {month:'long',day:'numeric',year:'numeric'}) : '________________________';
+  if (contractSigned && capturedSignature) {
+    if (eSigNameEl) eSigNameEl.innerHTML = '<img src="' + capturedSignature + '" style="height:40px; max-width:100%;">';
+    if (eSigDateEl) eSigDateEl.textContent = new Date().toLocaleDateString('en-US', {month:'long',day:'numeric',year:'numeric'});
+  } else {
+    if (eSigNameEl) eSigNameEl.textContent = eSigName || '________________________';
+    if (eSigDateEl) eSigDateEl.textContent = eSigDate ? new Date(eSigDate + 'T12:00').toLocaleDateString('en-US', {month:'long',day:'numeric',year:'numeric'}) : '________________________';
+  }
 
   // Insurance clause visibility
   const insClause = document.getElementById('print-ins-clause');
@@ -1501,8 +1581,10 @@ function shareQuote() {
 // ============================================================
 // SAVE / HISTORY
 // ============================================================
-function saveQuote() {
+function saveQuote(isSigned = false) {
   if (!currentMeasurements) return;
+  // Determine signed status
+  const signedStatus = isSigned || contractSigned;
   const nextNum = parseInt(localStorage.getItem('rqp_quotenum') || '496') + 1;
   const quoteNum = 'T' + String(nextNum).padStart(5, '0');
   localStorage.setItem('rqp_quotenum', String(nextNum));
@@ -1525,6 +1607,9 @@ function saveQuote() {
       adjuster: document.getElementById('insAdjuster').value,
       deductible: document.getElementById('insDeductible').value,
     } : null,
+    signed: signedStatus,
+    signatureData: capturedSignature,
+    signedDate: signedStatus ? new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : null,
     followUp: document.getElementById('followUpCheck').checked ? {
       date: document.getElementById('followUpDate').value,
       note: document.getElementById('followUpNote').value
@@ -1536,6 +1621,10 @@ function saveQuote() {
     additionalItems: [...additionalItems],
     customMaterialItems: [...customMaterialItems],
     customLaborItems: [...customLaborItems],
+    shingleBrandColor: document.getElementById('shingleBrandColor')?.value || '',
+    ridgeBrandColor: document.getElementById('ridgeBrandColor')?.value || '',
+    deliveryDate: document.getElementById('deliveryDate')?.value || '',
+    deliveryNotes: document.getElementById('deliveryNotes')?.value || '',
     jobOpts: {...jobOpts},
     commType: currentCommType,
     sliderVal: document.getElementById('marginSlider').value,
@@ -1575,9 +1664,23 @@ function loadHistoryQuote(id) {
   renderCustomMaterials();
   customLaborItems = q.customLaborItems || [];
   renderCustomLabor();
+  if (q.shingleBrandColor) { const el = document.getElementById('shingleBrandColor'); if(el) el.value = q.shingleBrandColor; }
+  if (q.ridgeBrandColor) { const el = document.getElementById('ridgeBrandColor'); if(el) el.value = q.ridgeBrandColor; }
+  if (q.deliveryDate) { const el = document.getElementById('deliveryDate'); if(el) el.value = q.deliveryDate; }
+  if (q.deliveryNotes) { const el = document.getElementById('deliveryNotes'); if(el) el.value = q.deliveryNotes; }
   jobOpts = q.jobOpts || { steep: false, twostory: false, extrafelt: false, zridge: false };
   currentCommType = q.commType || 'company';
   currentTier = q.tier || 'good';
+  capturedSignature = q.signatureData || null;
+  contractSigned = q.signed || false;
+  if (q.signed) {
+    const badge = document.getElementById('signedBadge');
+    if (badge) {
+      badge.style.display = 'block';
+      document.getElementById('signedByName').textContent = q.customer;
+      document.getElementById('signedOnDate').textContent = q.signedDate || '';
+    }
+  }
   ccamProjectId = q.ccamProjectId || null;
   ccamProjectUrl = q.ccamProjectUrl || null;
   if (ccamProjectId) {
@@ -1860,6 +1963,180 @@ function renderCustomLabor() {
     </div>`).join('');
 }
 
+function getMaterialOrderText() {
+  if (!currentMeasurements) return '';
+  const m = currentMeasurements;
+  const customer = document.getElementById('customerName').value || 'Homeowner';
+  const address = document.getElementById('jobAddress').value || m.address || '';
+  const delivDate = document.getElementById('deliveryDate').value;
+  const delivNotes = document.getElementById('deliveryNotes').value;
+  const shingleBC = document.getElementById('shingleBrandColor').value;
+  const ridgeBC = document.getElementById('ridgeBrandColor').value;
+  const actualSq = Math.round(m.totalSquares || 0);
+  const wasteSq = m.totalWithWaste || actualSq;
+  const valleysLF = m.valleysLF || 0;
+  const dripLF = m.dripEdgeLF || ((m.rakesLF||0)+(m.eavesLF||0));
+  const ridgeCapLF = m.ridgeCapLF || ((m.ridgesLF||0)+(m.hipsLF||0));
+  const starterLF = m.starterLF || dripLF;
+  const shingleBundles = Math.ceil(wasteSq * 3);
+  const underlayRolls = Math.ceil(wasteSq / 9);
+  const icewaterRolls = Math.ceil(valleysLF / 40);
+  const starterBundles = Math.ceil(starterLF / 100);
+  const dripPcs = Math.ceil(dripLF / 8.5);
+  const ridgeBundles = Math.ceil(ridgeCapLF / 27);
+  const nailCartons = Math.ceil(actualSq / 15);
+  const capNailCartons = Math.ceil(actualSq / 30);
+
+  let lines = [
+    'TROPHY ROOFING & CONSTRUCTION',
+    'MATERIAL ORDER SHEET',
+    '═'.repeat(40),
+    '',
+    'CUSTOMER: ' + customer,
+    'JOB ADDRESS: ' + address,
+    'REQUESTED DELIVERY: ' + (delivDate ? new Date(delivDate+'T12:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}) : 'TBD'),
+    delivNotes ? 'DELIVERY NOTES: ' + delivNotes : '',
+    'ORDER DATE: ' + new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}),
+    '',
+    '─'.repeat(40),
+    'SHINGLES',
+    '─'.repeat(40),
+    'Product: ' + (shingleBC || '____________'),
+    'Quantity: ' + shingleBundles + ' bundles (' + wasteSq + ' squares w/ waste)',
+    '',
+    '─'.repeat(40),
+    'RIDGE CAP',
+    '─'.repeat(40),
+    'Product: ' + (ridgeBC || (jobOpts.zridge ? 'Z-Ridge ____________' : 'Standard Ridge ____________')),
+    'Quantity: ' + ridgeBundles + ' bundles (' + ridgeCapLF + ' LF)',
+    '',
+    '─'.repeat(40),
+    'ACCESSORIES',
+    '─'.repeat(40),
+    'Synthetic Underlayment: ' + underlayRolls + ' rolls (10sq/roll)',
+    'Ice & Water Shield: ' + icewaterRolls + ' rolls (valleys — ' + valleysLF + ' LF)',
+    'Starter Strip: ' + starterBundles + ' bundles (100 LF/bundle)',
+    'Drip Edge: ' + dripPcs + ' pieces (8.5 LF/piece — ' + dripLF + ' LF total)',
+    'Coil Nails 1.25": ' + nailCartons + ' cartons',
+    'Cap Nails: ' + capNailCartons + ' cartons',
+  ];
+
+  if (customMaterialItems.length > 0) {
+    lines.push('', '─'.repeat(40), 'ADDITIONAL ITEMS', '─'.repeat(40));
+    customMaterialItems.forEach(i => {
+      lines.push((i.desc || 'Item') + ': ' + i.qty + ' ' + i.unit);
+    });
+  }
+
+  lines.push('', '═'.repeat(40));
+  lines.push('Trophy Roofing & Construction');
+  lines.push('682-438-2151 | info@trophyroofingdfw.com');
+
+  return lines.filter(l => l !== null && l !== undefined).join('\n');
+}
+
+function shareMaterialOrder() {
+  const text = getMaterialOrderText();
+  if (!text) { alert('Please generate a quote first.'); return; }
+  if (navigator.share) {
+    navigator.share({ title: 'Material Order — Trophy Roofing', text });
+  } else {
+    navigator.clipboard.writeText(text).then(() => alert('Material order copied to clipboard!'));
+  }
+}
+
+function printMaterialOrder() {
+  const m = currentMeasurements;
+  if (!m) { alert('Please generate a quote first.'); return; }
+  const customer = document.getElementById('customerName').value || 'Homeowner';
+  const address = document.getElementById('jobAddress').value || m.address || '';
+  const delivDate = document.getElementById('deliveryDate').value;
+  const delivNotes = document.getElementById('deliveryNotes').value;
+  const shingleBC = document.getElementById('shingleBrandColor').value;
+  const ridgeBC = document.getElementById('ridgeBrandColor').value;
+  const actualSq = Math.round(m.totalSquares || 0);
+  const wasteSq = m.totalWithWaste || actualSq;
+  const valleysLF = m.valleysLF || 0;
+  const dripLF = m.dripEdgeLF || ((m.rakesLF||0)+(m.eavesLF||0));
+  const ridgeCapLF = m.ridgeCapLF || ((m.ridgesLF||0)+(m.hipsLF||0));
+  const starterLF = m.starterLF || dripLF;
+  const shingleBundles = Math.ceil(wasteSq * 3);
+  const underlayRolls = Math.ceil(wasteSq / 9);
+  const icewaterRolls = Math.ceil(valleysLF / 40);
+  const starterBundles = Math.ceil(starterLF / 100);
+  const dripPcs = Math.ceil(dripLF / 8.5);
+  const ridgeBundles = Math.ceil(ridgeCapLF / 27);
+  const nailCartons = Math.ceil(actualSq / 15);
+  const capNailCartons = Math.ceil(actualSq / 30);
+  const delivStr = delivDate ? new Date(delivDate+'T12:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}) : 'TBD';
+
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>Material Order</title>
+  <style>
+    body{font-family:Arial,sans-serif;max-width:700px;margin:0 auto;padding:32px;color:#1a1a1a;}
+    .hdr{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #1a3a6a;padding-bottom:12px;margin-bottom:20px;}
+    .co{font-weight:900;font-size:20px;color:#1a3a6a;line-height:1.2;}
+    .doc-title{font-size:18px;font-weight:700;color:#1a3a6a;text-align:right;}
+    .job-info{background:#f0f4ff;border-radius:8px;padding:14px;margin-bottom:20px;display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .info-lbl{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px;}
+    .info-val{font-size:13px;font-weight:700;}
+    .section{margin-bottom:18px;}
+    .section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#1a3a6a;border-bottom:2px solid #1a3a6a;padding-bottom:4px;margin-bottom:10px;}
+    table{width:100%;border-collapse:collapse;font-size:13px;}
+    th{text-align:left;padding:6px 10px;background:#f8f9fa;font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:#888;border-bottom:2px solid #eee;}
+    td{padding:8px 10px;border-bottom:1px solid #f0f0f0;}
+    td:last-child{text-align:right;font-weight:700;}
+    .highlight{background:#fff8e1;}
+    .footer{border-top:1px solid #ddd;margin-top:24px;padding-top:12px;font-size:11px;color:#888;text-align:center;}
+    .delivery-box{background:#e8f5e9;border:1px solid #a5d6a7;border-radius:8px;padding:12px 16px;margin-bottom:20px;}
+    @media print{@page{margin:0.5in;}}
+  </style></head><body>
+  <div class="hdr">
+    <div><div class="co">TROPHY ROOFING</div><div class="co">& CONSTRUCTION</div></div>
+    <div><div class="doc-title">MATERIAL ORDER SHEET</div><div style="font-size:12px;color:#666;text-align:right;margin-top:4px;">${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div></div>
+  </div>
+  <div class="job-info">
+    <div><div class="info-lbl">Customer</div><div class="info-val">${customer}</div></div>
+    <div><div class="info-lbl">Job Address</div><div class="info-val">${address}</div></div>
+    <div><div class="info-lbl">Squares (w/ waste)</div><div class="info-val">${wasteSq} sq</div></div>
+    <div><div class="info-lbl">Predominant Pitch</div><div class="info-val">${m.predominantPitch || '--'}</div></div>
+  </div>
+  <div class="delivery-box">
+    <div style="font-size:12px;font-weight:700;color:#2e7d32;margin-bottom:4px;">&#x1F69A; Requested Delivery Date: <span style="font-size:14px;">${delivStr}</span></div>
+    ${delivNotes ? '<div style="font-size:12px;color:#444;">Notes: ' + delivNotes + '</div>' : ''}
+  </div>
+  <div class="section">
+    <div class="section-title">Shingles</div>
+    <table><thead><tr><th>Product</th><th>Quantity</th><th>Coverage</th></tr></thead>
+    <tbody><tr class="highlight"><td>${shingleBC || '______________________________'}</td><td>${shingleBundles} bundles</td><td>${wasteSq} squares</td></tr></tbody></table>
+  </div>
+  <div class="section">
+    <div class="section-title">Ridge Cap</div>
+    <table><thead><tr><th>Product</th><th>Quantity</th><th>Coverage</th></tr></thead>
+    <tbody><tr class="highlight"><td>${ridgeBC || (jobOpts.zridge ? 'Z-Ridge ______________________' : 'Standard Ridge ______________________')}</td><td>${ridgeBundles} bundles</td><td>${ridgeCapLF} LF</td></tr></tbody></table>
+  </div>
+  <div class="section">
+    <div class="section-title">Accessories</div>
+    <table><thead><tr><th>Item</th><th>Quantity</th><th>Coverage</th></tr></thead><tbody>
+    <tr><td>Synthetic Underlayment (10sq/roll)</td><td>${underlayRolls} rolls</td><td>${wasteSq} sq</td></tr>
+    <tr><td>Ice & Water Shield — Valleys only</td><td>${icewaterRolls} rolls</td><td>${valleysLF} LF valleys</td></tr>
+    <tr><td>Starter Strip (100 LF/bundle)</td><td>${starterBundles} bundles</td><td>${starterLF} LF</td></tr>
+    <tr><td>Drip Edge (8.5 LF/piece)</td><td>${dripPcs} pieces</td><td>${dripLF} LF</td></tr>
+    <tr><td>Coil Nails 1.25"</td><td>${nailCartons} cartons</td><td>${actualSq} sq actual</td></tr>
+    <tr><td>Cap Nails</td><td>${capNailCartons} cartons</td><td>${actualSq} sq actual</td></tr>
+    </tbody></table>
+  </div>
+  ${customMaterialItems.length > 0 ? `<div class="section"><div class="section-title">Additional Items</div>
+  <table><thead><tr><th>Item</th><th>Qty</th><th>Unit</th></tr></thead><tbody>
+  ${customMaterialItems.map(i=>`<tr><td>${i.desc||'Item'}</td><td>${i.qty}</td><td>${i.unit}</td></tr>`).join('')}
+  </tbody></table></div>` : ''}
+  <div class="footer">Trophy Roofing & Construction | 682-438-2151 | info@trophyroofingdfw.com<br>
+  Please confirm availability and pricing before delivery.</div>
+  <script>window.onload=function(){window.print();}</script>
+  </body></html>`);
+  win.document.close();
+}
+
 function shareSubInvoice() {
   if (!currentMeasurements) return;
   const m = currentMeasurements;
@@ -1879,6 +2156,103 @@ function shareSubInvoice() {
   } else {
     navigator.clipboard.writeText(text).then(() => alert('Sub invoice copied to clipboard!'));
   }
+}
+
+// ============================================================
+// SIGNATURE PAD
+// ============================================================
+let sigCanvas, sigCtx, sigDrawing = false, sigLastX = 0, sigLastY = 0;
+let capturedSignature = null;
+let contractSigned = false;
+
+function openSigPad() {
+  if (!currentMeasurements) { alert('Please generate a quote first.'); return; }
+  const overlay = document.getElementById('sigPadOverlay');
+  overlay.classList.add('active');
+  // Lock body scroll so customer can't scroll behind the pad
+  document.body.style.overflow = 'hidden';
+  const customerName = document.getElementById('customerName').value || 'the customer';
+  document.getElementById('sigCustomerName').textContent = customerName;
+  const sigAmtEl = document.getElementById('sigContractAmt');
+  if (sigAmtEl) sigAmtEl.textContent = document.getElementById('headerTotalAmt') ? document.getElementById('headerTotalAmt').textContent : '—';
+  // Update subtitle with address so customer knows what they're signing
+  const addr = document.getElementById('jobAddress') ? document.getElementById('jobAddress').value : '';
+  document.getElementById('sigPadSubtitle').textContent = addr ? addr : 'Trophy Roofing & Construction';
+  // Setup canvas
+  sigCanvas = document.getElementById('sigCanvas');
+  const container = sigCanvas.parentElement;
+  sigCanvas.width = container.offsetWidth;
+  sigCanvas.height = Math.min(220, window.innerHeight * 0.3);
+  sigCtx = sigCanvas.getContext('2d');
+  sigCtx.strokeStyle = '#1a1a1a';
+  sigCtx.lineWidth = 2.5;
+  sigCtx.lineCap = 'round';
+  sigCtx.lineJoin = 'round';
+  clearSigPad();
+  // Touch events
+  sigCanvas.addEventListener('touchstart', sigTouchStart, { passive: false });
+  sigCanvas.addEventListener('touchmove', sigTouchMove, { passive: false });
+  sigCanvas.addEventListener('touchend', sigTouchEnd);
+  sigCanvas.addEventListener('mousedown', sigMouseDown);
+  sigCanvas.addEventListener('mousemove', sigMouseMove);
+  sigCanvas.addEventListener('mouseup', sigMouseUp);
+}
+
+function closeSigPad() {
+  document.getElementById('sigPadOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+  sigCanvas.removeEventListener('touchstart', sigTouchStart);
+  sigCanvas.removeEventListener('touchmove', sigTouchMove);
+  sigCanvas.removeEventListener('touchend', sigTouchEnd);
+  sigCanvas.removeEventListener('mousedown', sigMouseDown);
+  sigCanvas.removeEventListener('mousemove', sigMouseMove);
+  sigCanvas.removeEventListener('mouseup', sigMouseUp);
+}
+
+function clearSigPad() {
+  if (sigCtx) { sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height); }
+}
+
+function getPos(e, canvas) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  if (e.touches) {
+    return { x: (e.touches[0].clientX - rect.left) * scaleX, y: (e.touches[0].clientY - rect.top) * scaleY };
+  }
+  return { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY };
+}
+
+function sigTouchStart(e) { e.preventDefault(); sigDrawing=true; const p=getPos(e,sigCanvas); sigLastX=p.x; sigLastY=p.y; }
+function sigTouchMove(e) { e.preventDefault(); if(!sigDrawing) return; const p=getPos(e,sigCanvas); sigCtx.beginPath(); sigCtx.moveTo(sigLastX,sigLastY); sigCtx.lineTo(p.x,p.y); sigCtx.stroke(); sigLastX=p.x; sigLastY=p.y; }
+function sigTouchEnd(e) { sigDrawing=false; }
+function sigMouseDown(e) { sigDrawing=true; const p=getPos(e,sigCanvas); sigLastX=p.x; sigLastY=p.y; }
+function sigMouseMove(e) { if(!sigDrawing) return; const p=getPos(e,sigCanvas); sigCtx.beginPath(); sigCtx.moveTo(sigLastX,sigLastY); sigCtx.lineTo(p.x,p.y); sigCtx.stroke(); sigLastX=p.x; sigLastY=p.y; }
+function sigMouseUp(e) { sigDrawing=false; }
+
+function acceptSignature() {
+  // Check if anything was drawn
+  const pixels = sigCtx.getImageData(0, 0, sigCanvas.width, sigCanvas.height).data;
+  const hasContent = pixels.some((val, i) => i % 4 === 3 && val > 0);
+  if (!hasContent) { alert('Please sign before accepting.'); return; }
+
+  capturedSignature = sigCanvas.toDataURL('image/png');
+  contractSigned = true;
+  const customer = document.getElementById('customerName').value || 'Customer';
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+
+  closeSigPad();
+
+  // Show signed badge
+  const badge = document.getElementById('signedBadge');
+  badge.style.display = 'block';
+  document.getElementById('signedByName').textContent = customer;
+  document.getElementById('signedOnDate').textContent = dateStr;
+
+  // Auto-save quote with signed status
+  saveQuote(true);
+  alert('Contract signed and saved! ✅');
 }
 
 function screenshotSubInvoice() {
@@ -2026,6 +2400,10 @@ function resetToUpload() {
   ['goodBrand','betterBrand','bestBrand'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
   document.getElementById('repName').value = '';
   document.getElementById('followUpCheck').checked = false;
+  capturedSignature = null;
+  contractSigned = false;
+  const badge = document.getElementById('signedBadge');
+  if (badge) badge.style.display = 'none';
   ccamProjectId = null;
   ccamProjectUrl = null;
   const ccamStatus = document.getElementById('ccamStatus');
