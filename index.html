@@ -653,7 +653,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
       <span id="pq-date" style="font-size:12px"></span><br>
       <strong style="font-size:13px; color:#1a3a6a">Quote #<span id="pq-quotenum"></span></strong><br><br>
       &#x260E; 682-438-2151<br>
-      &#x2709; info@
+      &#x2709;&nbsp;info@trophyroofingdfw.com
     </div>
   </div>
   <div class="pq-title">Prepared For:</div>
@@ -674,9 +674,25 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
       <tbody id="pq-addl-items"></tbody>
     </table>
   </div>
+  <!-- Subtotal + Additional breakdown -->
+  <div id="pq-subtotal-wrap" style="margin-bottom:6px; display:none;">
+    <table style="width:100%; border-collapse:collapse; font-size:12px;">
+      <tbody>
+        <tr style="border-bottom:1px solid #e2e8f0;">
+          <td style="padding:5px 8px; color:#444;">Roofing Work</td>
+          <td style="padding:5px 8px; text-align:right; font-weight:600;" id="pq-roofing-subtotal">$0</td>
+        </tr>
+        <tbody id="pq-addl-subtotal-rows"></tbody>
+        <tr style="border-top:2px solid #1a3a6a; background:#f8f9ff;">
+          <td style="padding:6px 8px; font-weight:700; color:#1a3a6a; font-size:13px;">Grand Total</td>
+          <td style="padding:6px 8px; text-align:right; font-weight:900; color:#1a3a6a; font-size:13px;" id="pq-grand-total">$0</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
   <div class="pq-price-box">
     <div>
-      <div class="plabel">Total Contract Price (all items included)</div>
+      <div class="plabel" id="pq-price-label">Total Contract Price</div>
       <div style="font-size:11px; opacity:0.6; margin-top:2px;" id="pq-sqnote"></div>
     </div>
     <div class="pamount" id="pq-price">$0</div>
@@ -1153,7 +1169,10 @@ function recalc() {
   const sliderVal = parseFloat(document.getElementById('marginSlider').value);
   // Contract = hardCost / (1 - margin%) + addl items
   const baseContract = hardCost / (1 - sliderVal / 100);
-  const contractPrice = baseContract + addlTotal;
+  const ccFeeEl = document.getElementById('ccFeeToggle');
+  const ccFeeOn = ccFeeEl && ccFeeEl.checked;
+  const ccFeeAmt = ccFeeOn ? (baseContract + addlTotal) * 0.03 : 0;
+  const contractPrice = baseContract + addlTotal + ccFeeAmt;
   currentContractPrice = contractPrice;
 
   const grossProfit = contractPrice - hardCost - addlTotal;
@@ -1185,9 +1204,11 @@ function recalc() {
     warnEl.style.display = 'none';
   }
 
-  // Commission
+  // Commission — rep earns on contract price minus the CC fee amount (fee is Trophy's hard cost)
   const commRate = currentCommType === 'company' ? 0.08 : 0.10;
-  const commission = contractPrice * commRate;
+  const ccOn = document.getElementById('ccFeeToggle') && document.getElementById('ccFeeToggle').checked;
+  const commissionBase = ccOn ? contractPrice - ccFeeAmt : contractPrice;
+  const commission = commissionBase * commRate;
   document.getElementById('commissionAmt').textContent = fmtC(commission);
   document.getElementById('contractPrice').textContent = fmtC(contractPrice);
   document.getElementById('headerTotalAmt').textContent = fmtC(contractPrice);
@@ -1806,8 +1827,8 @@ function renderHardCosts() {
     ['Cap Nails', capNailCartons + ' ctn', fmtC(getC('c_capnails')) + '/ctn', fmtC(capNailCost)],
     ['Spray Paint', sprayPaintQtyR + ' cans', '$11.00/can', fmtC(sprayPaintCostR)],
     ['Caulk', caulkQtyR + ' tubes', '$11.00/tube', fmtC(caulkCostR)],
-    ['Misc/Overhead (2%)', '—', '—', fmtC(miscOverhead)],
-    ['Tax (' + getC('c_tax') + '%)', '—', '—', fmtC(matWithTax - matSubtotal - miscOverhead)],
+    ['Misc/Overhead (2%)', '—', '—', fmtC(miscOverheadR)],
+    ['Tax (' + getC('c_tax') + '%)', '—', '—', fmtC(matWithTaxR - matSubtotalR - miscOverheadR)],
   ];
 
   document.getElementById('hardCostTable').innerHTML = `
@@ -1918,7 +1939,7 @@ function updateCustomMaterial(id, field, val) {
 
 function renderCustomMaterials() {
   const el = document.getElementById('customMaterialList');
-  if (!el) return;
+  if (!el || !document.body) return;
   if (customMaterialItems.length === 0) {
     el.innerHTML = '';
     return;
@@ -1969,7 +1990,7 @@ function updateSubInvoiceTotal() {
 
 function renderCustomLabor() {
   const el = document.getElementById('customLaborList');
-  if (!el) return;
+  if (!el || !document.body) return;
   if (customLaborItems.length === 0) { el.innerHTML = ''; return; }
   el.innerHTML = customLaborItems.map(item => `
     <div style="display:grid; grid-template-columns:1fr 70px 70px 90px 30px; gap:4px; padding:4px 0; align-items:center;">
@@ -2014,51 +2035,50 @@ function getMaterialOrderText() {
   const capNailCartons = Math.ceil(actualSq / 30);
   const sprayPaintQty2 = Math.min(6, Math.ceil(actualSq / 10));
   const caulkQty2 = Math.min(6, Math.ceil(actualSq / 10));
+  const delivStr = delivDate ? new Date(delivDate+'T12:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}) : 'TBD';
 
   let lines = [
     'TROPHY ROOFING & CONSTRUCTION',
-    'MATERIAL ORDER SHEET',
-    '═'.repeat(40),
+    'MATERIAL ORDER',
+    '========================================',
     '',
     'CUSTOMER: ' + customer,
     'JOB ADDRESS: ' + address,
-    'REQUESTED DELIVERY: ' + (delivDate ? new Date(delivDate+'T12:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}) : 'TBD'),
+    'REQUESTED DELIVERY: ' + delivStr,
     delivNotes ? 'DELIVERY NOTES: ' + delivNotes : '',
     'ORDER DATE: ' + new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}),
     '',
-    '─'.repeat(40),
+    '----------------------------------------',
     'SHINGLES',
-    '─'.repeat(40),
-    'Product: ' + (shingleBC || '____________'),
-    'Quantity: ' + shingleBundles + ' bundles (' + wasteSq + ' squares w/ waste)',
+    '----------------------------------------',
+    (shingleBC || '______________________________') + ': ' + shingleBundles + ' bundles',
     '',
-    '─'.repeat(40),
+    '----------------------------------------',
     'RIDGE CAP',
-    '─'.repeat(40),
-    'Product: ' + (ridgeBC || (jobOpts.zridge ? 'Z-Ridge ____________' : 'Standard Ridge ____________')),
-    'Quantity: ' + ridgeBundles + ' bundles (' + ridgeCapLF + ' LF)',
+    '----------------------------------------',
+    (ridgeBC || (jobOpts && jobOpts.zridge ? 'Z-Ridge ______________________' : 'Standard Ridge ______________________')) + ': ' + ridgeBundles + ' bundles',
     '',
-    '─'.repeat(40),
+    '----------------------------------------',
     'ACCESSORIES',
-    '─'.repeat(40),
-    'Synthetic Underlayment: ' + underlayRolls + ' rolls (10sq/roll)',
-    'Ice & Water Shield: ' + icewaterRolls + ' rolls (valleys — ' + valleysLF + ' LF)',
-    'Starter Strip: ' + starterBundles + ' bundles (100 LF/bundle)',
-    'Drip Edge: ' + dripPcs + ' pieces (8.5 LF/piece — ' + dripLF + ' LF total)',
+    '----------------------------------------',
+    'Synthetic Underlayment: ' + underlayRolls + ' rolls',
+    'Ice & Water Shield (valleys): ' + icewaterRolls + ' rolls',
+    'Starter Strip: ' + starterBundles + ' bundles',
+    'Drip Edge: ' + dripPcs + ' pieces',
     'Coil Nails 1.25": ' + nailCartons + ' cartons',
     'Cap Nails: ' + capNailCartons + ' cartons',
-    'Spray Paint: ' + sprayPaintQty2 + ' cans (1 per 10 sq)',
-    'Caulk: ' + caulkQty2 + ' tubes (1 per 10 sq)',
+    'Spray Paint: ' + sprayPaintQty2 + ' cans',
+    'Caulk: ' + caulkQty2 + ' tubes',
   ];
 
   if (customMaterialItems.length > 0) {
-    lines.push('', '─'.repeat(40), 'ADDITIONAL ITEMS', '─'.repeat(40));
+    lines.push('', '----------------------------------------', 'ADDITIONAL ITEMS', '----------------------------------------');
     customMaterialItems.forEach(i => {
-      lines.push((i.desc || 'Item') + ': ' + i.qty + ' ' + i.unit);
+      if (i.desc) lines.push((i.desc) + (i.qty ? ': ' + i.qty + (i.unit ? ' ' + i.unit : '') : ''));
     });
   }
 
-  lines.push('', '═'.repeat(40));
+  lines.push('', '========================================');
   lines.push('Trophy Roofing & Construction');
   lines.push('682-438-2151 | info@trophyroofingdfw.com');
 
