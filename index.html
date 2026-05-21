@@ -337,6 +337,13 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
           <div style="font-size:10px; color:var(--muted); margin-top:4px; text-align:center; opacity:0.7;">
             Large % = actual margin &nbsp;|&nbsp; Input box = target margin setting
           </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-top:8px; background:#0f172a; border:1px solid #1e3a5f; border-radius:8px; padding:7px 12px;">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" id="ccFeeToggle" onchange="toggleCCFee()" style="width:16px; height:16px; cursor:pointer; accent-color:#4ade80;">
+              <span style="font-size:12px; color:var(--muted);">&#x1F4B3; Customer paying by credit card</span>
+            </label>
+            <span id="ccFeeLabel" style="font-size:11px; color:var(--muted); display:none;">+3% added</span>
+          </div>
           <div id="marginWarning" style="display:none"></div>
           <div class="commission-box">
             <div style="display:flex; justify-content:space-between; align-items:flex-start">
@@ -1084,8 +1091,13 @@ function calcHardCost(m) {
   // Cap nails — round up cartons (30sq actual)
   const capNailCartons = Math.ceil(actualSq / 30);
   const capNailCost = capNailCartons * getC('c_capnails');
+  // Spray paint & caulk — 1 per 10 sq of shingles (actual sq), $11 each
+  const sprayPaintQty = Math.min(6, Math.ceil(actualSq / 10));
+  const caulkQty = Math.min(6, Math.ceil(actualSq / 10));
+  const sprayPaintCost = sprayPaintQty * 11;
+  const caulkCost = caulkQty * 11;
 
-  const matSubtotal = shingleCost + underlayCost + icewaterCost + starterCost + dripCost + ridgeCost + nailCost + capNailCost;
+  const matSubtotal = shingleCost + underlayCost + icewaterCost + starterCost + dripCost + ridgeCost + nailCost + capNailCost + sprayPaintCost + caulkCost;
   const miscOverhead = matSubtotal * 0.02; // pipe jacks, vents, misc — baked in
   const matCostPreTax = matSubtotal + miscOverhead;
   const matCostWithTax = matCostPreTax * taxRate;
@@ -1179,6 +1191,13 @@ function recalc() {
   document.getElementById('commissionAmt').textContent = fmtC(commission);
   document.getElementById('contractPrice').textContent = fmtC(contractPrice);
   document.getElementById('headerTotalAmt').textContent = fmtC(contractPrice);
+}
+
+function toggleCCFee() {
+  recalc();
+  const checked = document.getElementById('ccFeeToggle').checked;
+  const label = document.getElementById('ccFeeLabel');
+  if (label) label.style.display = checked ? 'inline' : 'none';
 }
 
 function onSliderChange(val) {
@@ -1600,6 +1619,7 @@ function saveQuote(isSigned = false) {
     rep: document.getElementById('repName').value || '',
     ccamProjectId: ccamProjectId,
     ccamProjectUrl: ccamProjectUrl,
+    ccFee: document.getElementById('ccFeeToggle') && document.getElementById('ccFeeToggle').checked,
     isInsurance: document.getElementById('insuranceToggle').checked,
     insurance: document.getElementById('insuranceToggle').checked ? {
       company: document.getElementById('insCompany').value,
@@ -1747,9 +1767,13 @@ function renderHardCosts() {
   const nailCost = nailCartons * getC('c_nails');
   const capNailCartons = Math.ceil(actualSq / 30);
   const capNailCost = capNailCartons * getC('c_capnails');
-  const matSubtotal = shingleCost + underlayCost + icewaterCost + starterCost + dripCost + ridgeCost + nailCost + capNailCost;
-  const miscOverhead = matSubtotal * 0.02;
-  const matWithTax = (matSubtotal + miscOverhead) * taxRate;
+  const sprayPaintQtyR = Math.min(6, Math.ceil(actualSq / 10));
+  const caulkQtyR = Math.min(6, Math.ceil(actualSq / 10));
+  const sprayPaintCostR = sprayPaintQtyR * 11;
+  const caulkCostR = caulkQtyR * 11;
+  const matSubtotalR = shingleCost + underlayCost + icewaterCost + starterCost + dripCost + ridgeCost + nailCost + capNailCost + sprayPaintCostR + caulkCostR;
+  const miscOverheadR = matSubtotalR * 0.02;
+  const matWithTaxR = (matSubtotalR + miscOverheadR) * taxRate;
 
   const pitchRates = {1:75,2:75,3:75,4:75,5:75,6:75,7:75,8:80,9:85,10:90,11:95,12:100,13:105,14:110,15:115,16:120};
   let fieldLaborCost = 0;
@@ -1780,6 +1804,8 @@ function renderHardCosts() {
     [(jobOpts.zridge ? 'Z-Ridge Cap' : 'Standard Ridge Cap'), ridgeBundles + ' bdl', fmtC(ridgeCostPerBundle) + '/bdl', fmtC(ridgeCost)],
     ['Coil Nails', nailCartons + ' ctn', fmtC(getC('c_nails')) + '/ctn', fmtC(nailCost)],
     ['Cap Nails', capNailCartons + ' ctn', fmtC(getC('c_capnails')) + '/ctn', fmtC(capNailCost)],
+    ['Spray Paint', sprayPaintQtyR + ' cans', '$11.00/can', fmtC(sprayPaintCostR)],
+    ['Caulk', caulkQtyR + ' tubes', '$11.00/tube', fmtC(caulkCostR)],
     ['Misc/Overhead (2%)', '—', '—', fmtC(miscOverhead)],
     ['Tax (' + getC('c_tax') + '%)', '—', '—', fmtC(matWithTax - matSubtotal - miscOverhead)],
   ];
@@ -1802,9 +1828,9 @@ function renderHardCosts() {
       </tbody>
     </table>`;
 
-  document.getElementById('hc_total').textContent = fmtC(matWithTax + laborTotal);
+  document.getElementById('hc_total').textContent = fmtC(matWithTaxR + laborTotal);
   document.getElementById('hc_labor').textContent = fmtC(laborTotal);
-  document.getElementById('hc_material').textContent = fmtC(matWithTax);
+  document.getElementById('hc_material').textContent = fmtC(matWithTaxR);
 
   // Sub invoice
   const subLines = [];
@@ -1986,6 +2012,8 @@ function getMaterialOrderText() {
   const ridgeBundles = Math.ceil(ridgeCapLF / 27);
   const nailCartons = Math.ceil(actualSq / 15);
   const capNailCartons = Math.ceil(actualSq / 30);
+  const sprayPaintQty2 = Math.min(6, Math.ceil(actualSq / 10));
+  const caulkQty2 = Math.min(6, Math.ceil(actualSq / 10));
 
   let lines = [
     'TROPHY ROOFING & CONSTRUCTION',
@@ -2019,6 +2047,8 @@ function getMaterialOrderText() {
     'Drip Edge: ' + dripPcs + ' pieces (8.5 LF/piece — ' + dripLF + ' LF total)',
     'Coil Nails 1.25": ' + nailCartons + ' cartons',
     'Cap Nails: ' + capNailCartons + ' cartons',
+    'Spray Paint: ' + sprayPaintQty2 + ' cans (1 per 10 sq)',
+    'Caulk: ' + caulkQty2 + ' tubes (1 per 10 sq)',
   ];
 
   if (customMaterialItems.length > 0) {
@@ -2068,6 +2098,8 @@ function printMaterialOrder() {
   const ridgeBundles = Math.ceil(ridgeCapLF / 27);
   const nailCartons = Math.ceil(actualSq / 15);
   const capNailCartons = Math.ceil(actualSq / 30);
+  const sprayPaintQty2 = Math.min(6, Math.ceil(actualSq / 10));
+  const caulkQty2 = Math.min(6, Math.ceil(actualSq / 10));
   const delivStr = delivDate ? new Date(delivDate+'T12:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}) : 'TBD';
 
   const win = window.open('', '_blank');
@@ -2124,6 +2156,8 @@ function printMaterialOrder() {
     <tr><td>Drip Edge (8.5 LF/piece)</td><td>${dripPcs} pieces</td><td>${dripLF} LF</td></tr>
     <tr><td>Coil Nails 1.25"</td><td>${nailCartons} cartons</td><td>${actualSq} sq actual</td></tr>
     <tr><td>Cap Nails</td><td>${capNailCartons} cartons</td><td>${actualSq} sq actual</td></tr>
+    <tr><td>Spray Paint</td><td>${Math.min(6, Math.ceil(actualSq/10))} cans</td><td>1 per 10 sq</td></tr>
+    <tr><td>Caulk / Sealant</td><td>${Math.min(6, Math.ceil(actualSq/10))} tubes</td><td>1 per 10 sq</td></tr>
     </tbody></table>
   </div>
   ${customMaterialItems.length > 0 ? `<div class="section"><div class="section-title">Additional Items</div>
@@ -2132,7 +2166,7 @@ function printMaterialOrder() {
   </tbody></table></div>` : ''}
   <div class="footer">Trophy Roofing & Construction | 682-438-2151 | info@trophyroofingdfw.com<br>
   Please confirm availability and pricing before delivery.</div>
-  <script>window.onload=function(){window.print();}</script>
+  <script>window.onload=function(){window.print();}<\/script>
   </body></html>`);
   win.document.close();
 }
@@ -2404,6 +2438,10 @@ function resetToUpload() {
   contractSigned = false;
   const badge = document.getElementById('signedBadge');
   if (badge) badge.style.display = 'none';
+  const ccToggleReset = document.getElementById('ccFeeToggle');
+  if (ccToggleReset) { ccToggleReset.checked = false; }
+  const ccLabel = document.getElementById('ccFeeLabel');
+  if (ccLabel) ccLabel.style.display = 'none';
   ccamProjectId = null;
   ccamProjectUrl = null;
   const ccamStatus = document.getElementById('ccamStatus');
@@ -2414,6 +2452,8 @@ function resetToUpload() {
   if (ccamOpenBtn) { ccamOpenBtn.disabled = true; ccamOpenBtn.style.color = 'var(--muted)'; ccamOpenBtn.style.borderColor = 'var(--border)'; }
   const ccamCreateBtn = document.getElementById('ccamCreateBtn');
   if (ccamCreateBtn) { ccamCreateBtn.textContent = '⊕ Create CC Project'; ccamCreateBtn.disabled = false; }
+  const ccToggle = document.getElementById('ccFeeToggle');
+  if (ccToggle) { ccToggle.checked = q.ccFee || false; toggleCCFee(); }
   document.getElementById('insuranceToggle').checked = false;
   document.getElementById('eSignName').value = '';
   document.getElementById('eSignDate').value = '';
