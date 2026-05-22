@@ -140,8 +140,8 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
 .danger-banner { background: #1a0808; border: 1px solid #5a1a1a; border-radius: 10px; padding: 10px 14px; color: var(--red); font-size: 12px; margin-top: 8px; }
 /* PRINT STYLES */
 @media print {
-  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
-  body { background: white; color: black; font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  html, body, * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+  body { background: white !important; color: black !important; font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; }
   .no-print { display: none !important; }
   .print-only { display: block !important; }
   .header, .nav-tabs, .main, #mainApp, #navTabs, #mainContent, .safe-bottom { display: none !important; }
@@ -835,31 +835,76 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
   </div>
 
   <!-- Job Prep -->
-  <div id="pq-jobprep-page" style="page-break-before:always; font-family:Arial,sans-serif; color:#222;">
-    <div style="background:#1a3a6a !important; color:white !important; padding:20px 32px; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;">
-      <div style="font-weight:900; font-size:20px;">WHAT TO EXPECT WHEN GETTING A NEW ROOF</div>
-      <div style="font-size:13px; color:#93c5fd; margin-top:4px;">Here are some important things to keep in mind.</div>
+  <div id="pq-jobprep-page" style="page-break-before:always; font-family:Arial,sans-serif; color:#222; background:white;">
+
+    <!-- Header banner -->
+    <div style="background:#1a3a6a; color:white; padding:22px 32px; display:flex; align-items:center; justify-content:space-between;">
+      <div>
+        <div style="font-weight:900; font-size:22px; letter-spacing:-0.02em;">WHAT TO EXPECT</div>
+        <div style="font-weight:900; font-size:22px; letter-spacing:-0.02em;">WHEN GETTING A NEW ROOF</div>
+        <div style="font-size:13px; color:#93c5fd; margin-top:6px;">Here are some important things to keep in mind.</div>
+      </div>
+      <div style="font-size:48px; opacity:0.8;">&#x1F3E0;</div>
     </div>
+
     <div style="padding:28px 32px;">
-      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; margin-bottom:24px;">
-        <div style="background:#f8f9fa !important; border-radius:10px; padding:18px; -webkit-print-color-adjust:exact; print-color-adjust:exact;">
-          <div style="font-size:13px; font-weight:700; color:#1a3a6a; margin-bottom:10px; text-transform:uppercase;">1. Secure Pets &amp; Valuables</div>
-          <div style="font-size:12px; color:#444; line-height:1.7;">&bull; Walk exterior, take valuables inside<br>&bull; Remove ALL pictures from walls<br>&bull; Keep pets indoors during work<br>&bull; Cover valuables in your attic</div>
+
+      <!-- 3 sections with large emoji icons -->
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:24px;">
+
+        <div style="background:#f0f4ff; border-radius:12px; padding:20px; border:1px solid #c7d7f5;">
+          <div style="font-size:40px; margin-bottom:10px;">&#x1F436;</div>
+          <div style="font-size:13px; font-weight:800; color:#1a3a6a; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.04em;">1. Secure Pets &amp; Valuables</div>
+          <div style="font-size:12px; color:#444; line-height:1.8;">
+            &bull; Walk exterior &amp; bring valuables inside<br>
+            &bull; Remove ALL pictures from walls<br>
+            &bull; Keep pets safely indoors<br>
+            &bull; Cover valuables in your attic
+          </div>
         </div>
-        <div style="background:#f8f9fa !important; border-radius:10px; padding:18px; -webkit-print-color-adjust:exact; print-color-adjust:exact;">
-          <div style="font-size:13px; font-weight:700; color:#1a3a6a; margin-bottom:10px; text-transform:uppercase;">2. Clear Workspace</div>
-          <div style="font-size:12px; color:#444; line-height:1.7;">&bull; Clear or remove anything in driveway<br>&bull; Move deck tables, chairs, solar lights<br>&bull; Do not drive in during work<br>&bull; Mow lawn a few days prior</div>
+
+        <div style="background:#f0fff4; border-radius:12px; padding:20px; border:1px solid #86efac;">
+          <div style="font-size:40px; margin-bottom:10px;">&#x1F6A7;</div>
+          <div style="font-size:13px; font-weight:800; color:#15803d; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.04em;">2. Clear Your Workspace</div>
+          <div style="font-size:12px; color:#444; line-height:1.8;">
+            &bull; Clear driveway of all vehicles<br>
+            &bull; Move patio furniture &amp; solar lights<br>
+            &bull; Do NOT drive in during work<br>
+            &bull; Mow lawn a few days prior
+          </div>
         </div>
-        <div style="background:#f8f9fa !important; border-radius:10px; padding:18px; -webkit-print-color-adjust:exact; print-color-adjust:exact;">
-          <div style="font-size:13px; font-weight:700; color:#1a3a6a; margin-bottom:10px; text-transform:uppercase;">3. It Will Get Messy</div>
-          <div style="font-size:12px; color:#444; line-height:1.7;">&bull; Messy during install &mdash; clean after<br>&bull; This is construction and destruction<br>&bull; Full cleanup before we leave<br>&bull; Please leave us a review when done!</div>
+
+        <div style="background:#fff8e1; border-radius:12px; padding:20px; border:1px solid #fbbf24;">
+          <div style="font-size:40px; margin-bottom:10px;">&#x1F6A8;</div>
+          <div style="font-size:13px; font-weight:800; color:#92400e; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.04em;">3. It Will Get Messy</div>
+          <div style="font-size:12px; color:#444; line-height:1.8;">
+            &bull; Expect noise &amp; mess during install<br>
+            &bull; This is construction &amp; destruction<br>
+            &bull; We do full cleanup before we leave<br>
+            &bull; Stray nails possible — watch your tires!
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom banner -->
+      <div style="background:#f0f4ff; border:1px solid #c7d7f5; border-radius:10px; padding:16px 24px; display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <div>
+          <div style="font-size:14px; font-weight:700; color:#1a3a6a;">&#x2B50; Enjoy your new roof!</div>
+          <div style="font-size:12px; color:#444; margin-top:4px;">Don&rsquo;t forget to leave us a Google review — it means the world to our team.</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:13px; font-weight:700; color:#1a3a6a;">trophyroofingdfw.com</div>
+          <div style="font-size:12px; color:#666;">682-438-2151</div>
         </div>
       </div>
-      <div style="border:1px solid #c7d7f5; border-radius:10px; padding:14px 20px; display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#1a3a6a;">
-        <div>Enjoy your new roof! Don&rsquo;t forget to leave us a Google review.</div>
-        <div style="font-weight:700;">trophyroofingdfw.com</div>
+
+      <!-- Trophy logo area -->
+      <div style="text-align:center; padding:16px; background:#1a3a6a; border-radius:10px; color:white;">
+        <div style="font-weight:900; font-size:20px; letter-spacing:-0.02em;">TROPHY ROOFING &amp; CONSTRUCTION</div>
+        <div style="font-size:12px; color:#93c5fd; margin-top:4px;">682-438-2151 &nbsp;&bull;&nbsp; info@trophyroofingdfw.com &nbsp;&bull;&nbsp; trophyroofingdfw.com</div>
       </div>
-      <div style="border-top:1px solid #eee; margin-top:20px; padding-top:12px; font-size:10px; color:#999; text-align:center;">Trophy Roofing &amp; Construction | 682-438-2151 | info@trophyroofingdfw.com</div>
+
     </div>
   </div>
 </div>
@@ -980,7 +1025,9 @@ function calcHardCost(m) {
   const twostoryCost = jobOpts.twostory ? wasteSq * getC('c_twostory') : 0;
   const deliveryCost = 165;
   const laborCost = fieldLaborCost + ridgeStarterLaborCost + extrafeltCost + twostoryCost + deliveryCost;
-  return matCostWithTax + laborCost;
+  // Add custom material items (hard costs, margin applied on top)
+  const customMatHardCost = customMaterialItems.reduce((s, i) => s + (parseFloat(i.cost) || 0), 0);
+  return matCostWithTax + laborCost + customMatHardCost;
 }
 
 function recalc() {
@@ -1577,6 +1624,16 @@ function renderHardCosts() {
     ['Misc/Overhead (2%)', '—', '—', fmtC(miscOverheadR)],
     ['Tax (' + getC('c_tax') + '%)', '—', '—', fmtC(matWithTaxR - matSubtotalR - miscOverheadR)],
   ];
+  const customMatRows = customMaterialItems.length > 0
+    ? customMaterialItems.map(i => `
+        <tr style="border-bottom:1px solid #0d1f30; background:#07141a;">
+          <td style="padding:5px 14px; color:var(--accent);">+ ${i.desc || 'Custom'}</td>
+          <td style="padding:5px 14px; text-align:right; color:var(--muted);">${i.qty} ${i.unit}</td>
+          <td style="padding:5px 14px; text-align:right; color:var(--muted);">$${i.unitCost || '—'}/ea</td>
+          <td style="padding:5px 14px; text-align:right; font-family:monospace;">${fmtC(i.cost)}</td>
+        </tr>`).join('')
+    : '';
+
   document.getElementById('hardCostTable').innerHTML = `
     <table style="width:100%; border-collapse:collapse; font-size:12px;">
       <thead><tr style="background:#07101a;">
@@ -1592,11 +1649,13 @@ function renderHardCosts() {
           <td style="padding:5px 14px; text-align:right; color:var(--muted);">${unit}</td>
           <td style="padding:5px 14px; text-align:right; font-family:monospace;">${cost}</td>
         </tr>`).join('')}
+        ${customMatRows}
       </tbody>
     </table>`;
-  document.getElementById('hc_total').textContent = fmtC(matWithTaxR + laborTotal);
+  const customMatTotalR = customMaterialItems.reduce((s,i) => s + (parseFloat(i.cost)||0), 0);
+  document.getElementById('hc_total').textContent = fmtC(matWithTaxR + laborTotal + customMatTotalR);
   document.getElementById('hc_labor').textContent = fmtC(laborTotal);
-  document.getElementById('hc_material').textContent = fmtC(matWithTaxR);
+  document.getElementById('hc_material').textContent = fmtC(matWithTaxR + customMatTotalR);
   // Use ORDERED squares (ceiled bundles ÷ 3) to match what was actually delivered
   // e.g. GAF says 23.18 sq → ceil(23.18 * 3) = 70 bundles → 70/3 = 23.33 sq
   // But if GAF says 23.5 sq → ceil(23.5 * 3) = 71 bundles → 71/3 = 23.67 sq
@@ -1656,6 +1715,25 @@ function renderHardCosts() {
     </table>`;
 }
 
+
+// ============================================================
+// MATERIAL CATALOG
+// ============================================================
+const MATERIAL_CATALOG = [
+  { name: 'Valley Metal 20"x50"',         unit: 'ea',   cost: 80   },
+  { name: 'Turtle Vent (color match)',     unit: 'ea',   cost: 20   },
+  { name: 'Wind Turbine',                  unit: 'ea',   cost: 95   },
+  { name: 'Pipe Flashing 3"-1" Metal',    unit: 'ea',   cost: 10   },
+  { name: 'Step Flashing',                 unit: 'box',  cost: 70   },
+  { name: 'Ridge Vent',                    unit: 'ea',   cost: 19   },
+  { name: 'OSB / Wood Decking',           unit: 'sheet', cost: 15   },
+  { name: 'Cap Sheet (color match)',       unit: 'ea',   cost: 110  },
+  { name: 'Solar Power Vent',             unit: 'ea',   cost: 475  },
+  { name: 'Rain Cap - Small',             unit: 'ea',   cost: 55   },
+  { name: 'Rain Cap - Large',             unit: 'ea',   cost: 55   },
+  { name: 'Custom Item',                   unit: '',     cost: 0    },
+];
+
 function addCustomMaterial() {
   const id = Date.now();
   customMaterialItems.push({ id, desc: '', qty: '', unit: '', cost: 0 });
@@ -1669,17 +1747,62 @@ function updateCustomMaterial(id, field, val) {
   const item = customMaterialItems.find(i => i.id === id);
   if (item) { item[field] = field === 'cost' ? (parseFloat(val) || 0) : val; renderHardCosts(); }
 }
+function selectCatalogItem(id, val) {
+  const cat = MATERIAL_CATALOG.find(c => c.name === val);
+  if (!cat) return;
+  const item = customMaterialItems.find(i => i.id === id);
+  if (!item) return;
+  item.desc = cat.name;
+  item.unit = cat.unit;
+  item.unitCost = cat.cost;
+  item.cost = cat.cost * (parseFloat(item.qty) || 1);
+  renderCustomMaterials();
+  renderHardCosts();
+  recalc();
+}
+
+function updateCustomMaterialQty(id, qty) {
+  const item = customMaterialItems.find(i => i.id === id);
+  if (!item) return;
+  item.qty = qty;
+  const q = parseFloat(qty) || 1;
+  item.cost = (item.unitCost || item.cost || 0) * q;
+  renderCustomMaterials();
+  renderHardCosts();
+  recalc();
+}
+
 function renderCustomMaterials() {
   const el = document.getElementById('customMaterialList');
   if (!el || !document.body) return;
   if (customMaterialItems.length === 0) { el.innerHTML = ''; return; }
   el.innerHTML = customMaterialItems.map(item => `
-    <div style="display:grid; grid-template-columns:1fr 80px 80px 90px 30px; gap:4px; padding:5px 14px; border-bottom:1px solid #0d1f30; align-items:center;">
-      <input value="${item.desc}" placeholder="Description" oninput="updateCustomMaterial(${item.id},'desc',this.value)" style="background:#060d18; border:1px solid var(--border); border-radius:4px; color:var(--text); padding:4px 6px; font-size:12px; font-family:inherit;">
-      <input value="${item.qty}" placeholder="Qty" oninput="updateCustomMaterial(${item.id},'qty',this.value)" style="background:#060d18; border:1px solid var(--border); border-radius:4px; color:var(--text); padding:4px 6px; font-size:12px; font-family:inherit; text-align:center;">
-      <input value="${item.unit}" placeholder="Unit" oninput="updateCustomMaterial(${item.id},'unit',this.value)" style="background:#060d18; border:1px solid var(--border); border-radius:4px; color:var(--text); padding:4px 6px; font-size:12px; font-family:inherit; text-align:center;">
-      <input type="number" value="${item.cost || ''}" placeholder="$0.00" oninput="updateCustomMaterial(${item.id},'cost',this.value)" style="background:#060d18; border:1px solid var(--border); border-radius:4px; color:var(--text); padding:4px 6px; font-size:12px; font-family:inherit; text-align:right;">
-      <button onclick="removeCustomMaterial(${item.id})" style="background:none; border:none; color:var(--red); font-size:16px; cursor:pointer; padding:0; line-height:1;">&#x2715;</button>
+    <div style="padding:8px 14px; border-bottom:1px solid #0d1f30;">
+      <div style="display:grid; grid-template-columns:1fr 30px; gap:4px; align-items:center; margin-bottom:5px;">
+        <select onchange="selectCatalogItem(${item.id}, this.value)"
+          style="background:#060d18; border:1px solid var(--border); border-radius:4px; color:var(--text); padding:5px 6px; font-size:12px; font-family:inherit; width:100%;">
+          <option value="">— Select item —</option>
+          ${MATERIAL_CATALOG.map(c => `<option value="${c.name}" ${item.desc === c.name ? 'selected' : ''}>${c.name} (${c.unit}) — $${c.cost}</option>`).join('')}
+        </select>
+        <button onclick="removeCustomMaterial(${item.id})" style="background:none; border:none; color:var(--red); font-size:18px; cursor:pointer; padding:0; line-height:1;">&#x2715;</button>
+      </div>
+      <div style="display:grid; grid-template-columns:80px 80px 1fr; gap:6px; align-items:center;">
+        <div>
+          <div style="font-size:9px; color:var(--muted); text-transform:uppercase; margin-bottom:2px;">Qty</div>
+          <input type="number" value="${item.qty || ''}" placeholder="1"
+            oninput="updateCustomMaterialQty(${item.id}, this.value)"
+            style="background:#060d18; border:1px solid var(--border); border-radius:4px; color:var(--text); padding:4px 6px; font-size:13px; font-family:inherit; text-align:center; width:100%;">
+        </div>
+        <div>
+          <div style="font-size:9px; color:var(--muted); text-transform:uppercase; margin-bottom:2px;">Unit</div>
+          <div style="font-size:13px; color:var(--muted); padding:4px 6px;">${item.unit || '—'}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:9px; color:var(--muted); text-transform:uppercase; margin-bottom:2px;">Total Cost</div>
+          <div style="font-size:14px; font-weight:700; color:var(--green);">${fmtC(item.cost || 0)}</div>
+        </div>
+      </div>
+      ${item.desc && item.desc !== 'Custom Item' ? `<div style="font-size:10px; color:var(--muted); margin-top:4px;">Unit cost: $${item.unitCost || item.cost || 0} × ${item.qty || 1} ${item.unit}</div>` : ''}
     </div>`).join('');
 }
 
