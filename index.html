@@ -140,6 +140,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
 .danger-banner { background: #1a0808; border: 1px solid #5a1a1a; border-radius: 10px; padding: 10px 14px; color: var(--red); font-size: 12px; margin-top: 8px; }
 /* PRINT STYLES */
 @media print {
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
   body { background: white; color: black; font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .no-print { display: none !important; }
   .print-only { display: block !important; }
@@ -835,21 +836,21 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, 'S
 
   <!-- Job Prep -->
   <div id="pq-jobprep-page" style="page-break-before:always; font-family:Arial,sans-serif; color:#222;">
-    <div style="background:#1a3a6a; color:white; padding:20px 32px; -webkit-print-color-adjust:exact; print-color-adjust:exact;">
+    <div style="background:#1a3a6a !important; color:white !important; padding:20px 32px; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;">
       <div style="font-weight:900; font-size:20px;">WHAT TO EXPECT WHEN GETTING A NEW ROOF</div>
       <div style="font-size:13px; color:#93c5fd; margin-top:4px;">Here are some important things to keep in mind.</div>
     </div>
     <div style="padding:28px 32px;">
       <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; margin-bottom:24px;">
-        <div style="background:#f8f9fa; border-radius:10px; padding:18px;">
+        <div style="background:#f8f9fa !important; border-radius:10px; padding:18px; -webkit-print-color-adjust:exact; print-color-adjust:exact;">
           <div style="font-size:13px; font-weight:700; color:#1a3a6a; margin-bottom:10px; text-transform:uppercase;">1. Secure Pets &amp; Valuables</div>
           <div style="font-size:12px; color:#444; line-height:1.7;">&bull; Walk exterior, take valuables inside<br>&bull; Remove ALL pictures from walls<br>&bull; Keep pets indoors during work<br>&bull; Cover valuables in your attic</div>
         </div>
-        <div style="background:#f8f9fa; border-radius:10px; padding:18px;">
+        <div style="background:#f8f9fa !important; border-radius:10px; padding:18px; -webkit-print-color-adjust:exact; print-color-adjust:exact;">
           <div style="font-size:13px; font-weight:700; color:#1a3a6a; margin-bottom:10px; text-transform:uppercase;">2. Clear Workspace</div>
           <div style="font-size:12px; color:#444; line-height:1.7;">&bull; Clear or remove anything in driveway<br>&bull; Move deck tables, chairs, solar lights<br>&bull; Do not drive in during work<br>&bull; Mow lawn a few days prior</div>
         </div>
-        <div style="background:#f8f9fa; border-radius:10px; padding:18px;">
+        <div style="background:#f8f9fa !important; border-radius:10px; padding:18px; -webkit-print-color-adjust:exact; print-color-adjust:exact;">
           <div style="font-size:13px; font-weight:700; color:#1a3a6a; margin-bottom:10px; text-transform:uppercase;">3. It Will Get Messy</div>
           <div style="font-size:12px; color:#444; line-height:1.7;">&bull; Messy during install &mdash; clean after<br>&bull; This is construction and destruction<br>&bull; Full cleanup before we leave<br>&bull; Please leave us a review when done!</div>
         </div>
@@ -924,7 +925,8 @@ function calcHardCost(m) {
   const valleysLF = m.valleysLF || 0;
   const dripLF = m.dripEdgeLF || ((m.rakesLF||0) + (m.eavesLF||0));
   const ridgeCapLF = m.ridgeCapLF || ((m.ridgesLF||0) + (m.hipsLF||0));
-  const starterLF = m.starterLF || dripLF;
+  // Starter covers eaves + rakes (drip edge LF) — always use full perimeter
+  const starterLF = m.starterLF || m.dripEdgeLF || ((m.rakesLF||0) + (m.eavesLF||0));
   const shingleCostPerSq = currentTier === 'good' ? getC('c_good') : currentTier === 'better' ? getC('c_better') : getC('c_best');
   const shingleBundles = Math.ceil(wasteSq * 3);
   const shingleCost = (shingleBundles / 3) * shingleCostPerSq;
@@ -1165,7 +1167,9 @@ async function handleImageUpload(event) {
       mediaType = file.type || 'image/jpeg';
     }
     document.getElementById('parsingMsg').textContent = 'Extracting measurements...';
-    const prompt = `You are a roofing estimator. Extract all measurements from this roof measurement report screenshot. This could be a GAF Quick Measure report OR a Roofr report — handle both formats.\n\nIMPORTANT RULES:\n- All linear measurements must be converted to decimal feet (e.g. "212ft 6in" = 212.5, "19ft 4in" = 19.33)\n- For GAF reports: use the "Suggested" highlighted waste percentage\n- For Roofr reports: use 15 for suggestedWastePct (Roofr does not suggest waste)\n- totalSquares = actual squares without waste (total roof area sqft / 100)\n- totalWithWaste = squares with waste applied\n- For Roofr: ridgeCapLF = "Hips + ridges" value; eavesLF = "Eaves + rakes" value; starterLF = eavesLF\n- For pitchBreakdown: extract sqft for each pitch from the pitch table. Use the Area (sqft) row.\n\nReturn ONLY a valid JSON object, no markdown:\n{"address":"full street address including city state zip if visible, or null","totalSquares":number or null,"predominantPitch":"string or null","ridgesLF":number or null,"hipsLF":number or null,"valleysLF":number or null,"rakesLF":number or null,"eavesLF":number or null,"flashLF":number or null,"stepFlashLF":number or null,"dripEdgeLF":number or null,"ridgeCapLF":number or null,"starterLF":number or null,"leakBarrierLF":number or null,"facets":number or null,"suggestedWastePct":number or null,"totalWithWaste":number or null,"reportSource":"GAF or Roofr or Other","pitchBreakdown":{"3":sqft_or_null,"4":sqft_or_null,"5":sqft_or_null,"6":sqft_or_null,"7":sqft_or_null,"8":sqft_or_null,"9":sqft_or_null,"10":sqft_or_null,"11":sqft_or_null,"12":sqft_or_null,"13":sqft_or_null,"14":sqft_or_null,"15":sqft_or_null,"16":sqft_or_null}}`;
+    const prompt = `You are a roofing estimator. Extract all measurements from this roof measurement report screenshot. This could be a GAF Quick Measure report OR a Roofr report — handle both formats.\n\nIMPORTANT RULES:\n- All linear measurements must be converted to decimal feet (e.g. "212ft 6in" = 212.5, "19ft 4in" = 19.33)\n- For GAF reports: use the "Suggested" highlighted waste percentage\n- For Roofr reports: use 15 for suggestedWastePct (Roofr does not suggest waste)\n- totalSquares = actual squares without waste (total roof area sqft / 100)\n- totalWithWaste = squares with waste applied\n- For Roofr: ridgeCapLF = "Hips + ridges" value; eavesLF = "Eaves + rakes" value; starterLF = "Eaves + rakes" value (same as eavesLF)
+- For GAF: starterLF = "Starter" LF value from Summary page (= eaves + rakes combined). If not found, use eaves + rakes combined.
+- dripEdgeLF for GAF = "Drip Edge" value from Summary (= eaves + rakes). starterLF should equal dripEdgeLF for GAF reports.\n- For pitchBreakdown: extract sqft for each pitch from the pitch table. Use the Area (sqft) row.\n\nReturn ONLY a valid JSON object, no markdown:\n{"address":"full street address including city state zip if visible, or null","totalSquares":number or null,"predominantPitch":"string or null","ridgesLF":number or null,"hipsLF":number or null,"valleysLF":number or null,"rakesLF":number or null,"eavesLF":number or null,"flashLF":number or null,"stepFlashLF":number or null,"dripEdgeLF":number or null,"ridgeCapLF":number or null,"starterLF":number or null,"leakBarrierLF":number or null,"facets":number or null,"suggestedWastePct":number or null,"totalWithWaste":number or null,"reportSource":"GAF or Roofr or Other","pitchBreakdown":{"3":sqft_or_null,"4":sqft_or_null,"5":sqft_or_null,"6":sqft_or_null,"7":sqft_or_null,"8":sqft_or_null,"9":sqft_or_null,"10":sqft_or_null,"11":sqft_or_null,"12":sqft_or_null,"13":sqft_or_null,"14":sqft_or_null,"15":sqft_or_null,"16":sqft_or_null}}`;
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
@@ -1356,6 +1360,7 @@ function printQuote() {
     document.getElementById('pq-better-brand').textContent = document.getElementById('betterBrand').value || 'Class 3 (30yr)';
     document.getElementById('pq-best-brand').textContent = document.getElementById('bestBrand').value || 'Class 4 Impact Resistant';
   }
+  // Note: In Safari, enable "Print backgrounds" in print dialog for best results
   window.print();
 }
 
@@ -1512,7 +1517,8 @@ function renderHardCosts() {
   const valleysLF = m.valleysLF || 0;
   const dripLF = m.dripEdgeLF || ((m.rakesLF||0) + (m.eavesLF||0));
   const ridgeCapLF = m.ridgeCapLF || ((m.ridgesLF||0) + (m.hipsLF||0));
-  const starterLF = m.starterLF || dripLF;
+  // Starter covers eaves + rakes (drip edge LF) — always use full perimeter
+  const starterLF = m.starterLF || m.dripEdgeLF || ((m.rakesLF||0) + (m.eavesLF||0));
   const shingleCostPerSq = currentTier === 'good' ? getC('c_good') : currentTier === 'better' ? getC('c_better') : getC('c_best');
   const shingleBundles = Math.ceil(wasteSq * 3);
   const shingleCost = (shingleBundles / 3) * shingleCostPerSq;
@@ -1591,23 +1597,34 @@ function renderHardCosts() {
   document.getElementById('hc_total').textContent = fmtC(matWithTaxR + laborTotal);
   document.getElementById('hc_labor').textContent = fmtC(laborTotal);
   document.getElementById('hc_material').textContent = fmtC(matWithTaxR);
+  // Use ORDERED squares (ceiled bundles ÷ 3) to match what was actually delivered
+  // e.g. GAF says 23.18 sq → ceil(23.18 * 3) = 70 bundles → 70/3 = 23.33 sq
+  // But if GAF says 23.5 sq → ceil(23.5 * 3) = 71 bundles → 71/3 = 23.67 sq
+  // This matches exactly what you ordered and what the sub gets paid on
+  const orderedShinglBdl = Math.ceil(wasteSq * 3);
+  const orderedFieldSqR = orderedShinglBdl / 3;
+  const scaleFactorR = wasteSq > 0 ? orderedFieldSqR / wasteSq : 1;
+
   const subLines = [];
   const pb2 = m.pitchBreakdown;
   if (pb2 && Object.values(pb2).some(v => v > 0)) {
-    const wf2 = wasteSq / actualSq;
+    // Scale each pitch proportionally so total = ordered sq
+    const pitchTotal = Object.values(pb2).reduce((s,v) => s+(v||0), 0);
     for (const [pitch, sqft] of Object.entries(pb2)) {
       if (!sqft) continue;
-      const sq2 = ((sqft/100) * wf2);
+      // Each pitch's share of ordered sq, keeping proportions
+      const pitchFraction = sqft / pitchTotal;
+      const sq2 = orderedFieldSqR * pitchFraction;
       const rate = pitchRates[parseInt(pitch)] || 75;
       subLines.push([pitch + '/12 pitch', sq2.toFixed(2) + ' sq', fmtC(rate) + '/sq', fmtC(sq2 * rate)]);
     }
   } else {
     const pitch = parseInt((m.predominantPitch || '7').split('/')[0]) || 7;
-    subLines.push([pitch + '/12 pitch', wasteSq + ' sq', fmtC(pitchRates[pitch] || 75) + '/sq', fmtC(wasteSq * (pitchRates[pitch] || 75))]);
+    subLines.push([pitch + '/12 pitch', orderedFieldSqR.toFixed(2) + ' sq', fmtC(pitchRates[pitch] || 75) + '/sq', fmtC(orderedFieldSqR * (pitchRates[pitch] || 75))]);
   }
-  subLines.push(['Ridge & Starter labor', ((ridgeBundles2 + starterBundles2)/3).toFixed(2) + ' sq', fmtC(75) + '/sq', fmtC(ridgeStarterLaborCost)]);
-  if (jobOpts.extrafelt) subLines.push(['Extra felt layer', wasteSq + ' sq', fmtC(getC('c_extrafelt')) + '/sq', fmtC(extrafeltCost)]);
-  if (jobOpts.twostory) subLines.push(['2-story upcharge', wasteSq + ' sq', fmtC(getC('c_twostory')) + '/sq', fmtC(twostoryCost)]);
+  subLines.push(['Ridge & Starter (' + ridgeBundles2 + ' + ' + starterBundles2 + ' bdl)', ((ridgeBundles2 + starterBundles2)/3).toFixed(2) + ' sq', fmtC(75) + '/sq', fmtC(ridgeStarterLaborCost)]);
+  if (jobOpts.extrafelt) subLines.push(['Extra felt layer', orderedFieldSqR.toFixed(2) + ' sq', fmtC(getC('c_extrafelt')) + '/sq', fmtC(extrafeltCost)]);
+  if (jobOpts.twostory) subLines.push(['2-story upcharge', orderedFieldSqR.toFixed(2) + ' sq', fmtC(getC('c_twostory')) + '/sq', fmtC(twostoryCost)]);
   const customer = document.getElementById('customerName').value || 'Homeowner';
   const address = document.getElementById('jobAddress').value || m.address || '';
   document.getElementById('subInvoiceTable').innerHTML = `
@@ -1815,31 +1832,63 @@ function printSubInvoice() {
   const actualSq = Math.round(m.totalSquares || 0);
   const wasteSq = m.totalWithWaste || actualSq;
   const pitchRates = {1:75,2:75,3:75,4:75,5:75,6:75,7:75,8:80,9:85,10:90,11:95,12:100,13:105,14:110,15:115,16:120};
+  const dripLF = m.dripEdgeLF || ((m.rakesLF||0)+(m.eavesLF||0));
+  const ridgeCapLF = m.ridgeCapLF || ((m.ridgesLF||0)+(m.hipsLF||0));
+  const starterLF = m.starterLF || dripLF;
+
+  // Use ORDERED bundles if available, otherwise calculate from measurements
+  // Shingle bundles: from shingleBrandColor field storage or calc from wasteSq
+  const orderedShingleBundles = (() => {
+    // Check if hard cost breakdown has been opened and bundles calculated
+    const calcBundles = Math.ceil(wasteSq * 3);
+    // If custom material items has shingles override, use that - otherwise use calculated
+    const customShingle = customMaterialItems.find(i => i.desc && i.desc.toLowerCase().includes('shingle'));
+    if (customShingle && customShingle.qty) return parseFloat(customShingle.qty) || calcBundles;
+    return calcBundles;
+  })();
+
+  const orderedRidgeBundles = Math.ceil(ridgeCapLF / 27);
+  const orderedStarterBundles = Math.ceil(starterLF / 100);
+
+  // Squares from ordered materials
+  const orderedFieldSq = orderedShingleBundles / 3;
+  const ridgeStarterSq = (orderedRidgeBundles + orderedStarterBundles) / 3;
+
+  // Scale pitch breakdown to match ordered sq (keeps pitch mix accurate)
+  const gafSq = wasteSq || actualSq;
+  const scaleFactor = gafSq > 0 ? orderedFieldSq / gafSq : 1;
+
   let subLines = [];
   const pb = m.pitchBreakdown;
   if (pb && Object.values(pb).some(v => v > 0)) {
-    const wf = wasteSq / actualSq;
+    // Scale each pitch proportionally to match ordered bundles
     for (const [pitch, sqft] of Object.entries(pb)) {
       if (!sqft) continue;
-      const sq = ((sqft/100) * wf);
+      const gafPitchSq = (sqft / 100) * (gafSq / actualSq); // GAF sq for this pitch with waste
+      const scaledSq = gafPitchSq * scaleFactor; // scale to ordered
       const rate = pitchRates[parseInt(pitch)] || 75;
-      subLines.push([pitch + '/12 pitch', sq.toFixed(2) + ' sq', '$' + rate + '/sq', '$' + (sq * rate).toFixed(2)]);
+      subLines.push([
+        pitch + '/12 pitch',
+        scaledSq.toFixed(2) + ' sq',
+        '$' + rate + '/sq',
+        '$' + (scaledSq * rate).toFixed(2)
+      ]);
     }
   } else {
     const pitch = parseInt((m.predominantPitch || '7').split('/')[0]) || 7;
     const rate = pitchRates[pitch] || 75;
-    subLines.push([pitch + '/12 pitch', wasteSq + ' sq', '$' + rate + '/sq', '$' + (wasteSq * rate).toFixed(2)]);
+    subLines.push([
+      pitch + '/12 pitch',
+      orderedFieldSq.toFixed(2) + ' sq',
+      '$' + rate + '/sq',
+      '$' + (orderedFieldSq * rate).toFixed(2)
+    ]);
   }
-  const dripLF = m.dripEdgeLF || ((m.rakesLF||0)+(m.eavesLF||0));
-  const ridgeCapLF = m.ridgeCapLF || ((m.ridgesLF||0)+(m.hipsLF||0));
-  const starterLF = m.starterLF || dripLF;
-  const ridgeBundles = Math.ceil(ridgeCapLF / 27);
-  const starterBundles = Math.ceil(starterLF / 100);
-  const ridgeStarterSq = ((ridgeBundles + starterBundles) / 3);
+
   const ridgeStarterCost = ridgeStarterSq * 75;
-  subLines.push(['Ridge & Starter labor', ridgeStarterSq.toFixed(2) + ' sq', '$75/sq', '$' + ridgeStarterCost.toFixed(2)]);
-  if (jobOpts && jobOpts.extrafelt) { const c = wasteSq * (getC('c_extrafelt') || 5); subLines.push(['Extra felt layer', wasteSq + ' sq', '$5/sq', '$' + c.toFixed(2)]); }
-  if (jobOpts && jobOpts.twostory) { const c = wasteSq * (getC('c_twostory') || 10); subLines.push(['2-story upcharge', wasteSq + ' sq', '$10/sq', '$' + c.toFixed(2)]); }
+  subLines.push(['Ridge & Starter (' + orderedRidgeBundles + ' ridge + ' + orderedStarterBundles + ' starter bdl)', ridgeStarterSq.toFixed(2) + ' sq', '$75/sq', '$' + ridgeStarterCost.toFixed(2)]);
+  if (jobOpts && jobOpts.extrafelt) { const c = orderedFieldSq * (getC('c_extrafelt') || 5); subLines.push(['Extra felt layer', orderedFieldSq.toFixed(2) + ' sq', '$5/sq', '$' + c.toFixed(2)]); }
+  if (jobOpts && jobOpts.twostory) { const c = orderedFieldSq * (getC('c_twostory') || 10); subLines.push(['2-story upcharge', orderedFieldSq.toFixed(2) + ' sq', '$10/sq', '$' + c.toFixed(2)]); }
   const baseLabor = subLines.reduce((s, l) => s + parseFloat(l[3].replace('$','')), 0);
   const customLaborTotal = customLaborItems.reduce((s,i) => s + (i.cost||0), 0);
   const grandTotal = baseLabor + customLaborTotal;
